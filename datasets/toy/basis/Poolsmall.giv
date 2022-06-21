@@ -1,0 +1,11 @@
+# small example of PTN
+# traffic planning script, AS, 10.9.2007
+# line-id; edge-order; edge
+2;1;2
+2;2;6
+2;3;8
+8;1;1
+8;2;3
+8;3;4
+8;4;5
+8;5;7
