@@ -1,7 +1,3 @@
-import java.util.*;
-
-import ilog.concert.*;
-
 public class Arc {
 
 	enum Type {IN, OUT, TRAVEL, TOPLAT, FRPLAT, TRANSF}
@@ -9,8 +5,6 @@ public class Arc {
 	public final Vertex to;
 	public final Type type;
 	public final int value;
-	public HashMap<Stop,IloNumVar> yvar;
-	public IloNumVar zvar;
 	public int freq;
 	public Line line;
 	

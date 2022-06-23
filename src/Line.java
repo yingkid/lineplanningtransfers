@@ -1,7 +1,5 @@
 import java.util.*;
 
-import ilog.concert.IloIntVar;
-
 public class Line {
 	public int id;
 	public List<Edge> edges; 			//not in line order
@@ -14,8 +12,6 @@ public class Line {
 	public double costs;
 	public int minFreq;
 	public int maxFreq;
-
-	public HashMap<Integer,IloIntVar> lineFrequencyVar;
 	
 	public void finish()
 	{

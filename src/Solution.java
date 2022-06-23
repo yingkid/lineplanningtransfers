@@ -1,50 +1,37 @@
 import java.io.*;
-import java.nio.file.Files;
 import java.util.*;
-import java.util.Map.Entry;
-
-import ilog.concert.IloException;
-import ilog.concert.IloIntVar;
-import ilog.concert.IloLinearNumExpr;
-import ilog.concert.IloNumVar;
-import ilog.cplex.IloCplex;
 
 public class Solution {
+	public final Instance i;
 	public final long objectiveValue;
 	public final List<Line> lines;
 	public final HashMap<Line, Integer> frequencies;
-	public final List<Arc> arcs;
+	public final HashMap<Arc, HashMap<Stop, Integer>> arcs;
 	public final List<Arc> transferArcs;
 	public List<Cycle> cycles;
-	public final Model model;
-	public final IloCplex cplex;
-	public final Instance i;
-	public final int iteration;
-	public long time;
-	public EAN ean;
-	public int nrFRPLATF = 0;
-	public int nrTRANSF = 0;
 
-	public Solution(Model model, IloCplex cplex, Instance i, int iteration, long time) throws IloException
+	public final int iteration;
+	public final long time;
+	public EAN ean;
+	public final int nrFRPLATF;
+	public final int nrTRANSF;
+
+	public Solution(Instance i, List<Line> lines, HashMap<Line, Integer> frequencies, HashMap<Arc, HashMap<Stop, Integer>> arcs, List<Arc> transferArcs, 
+			double objectiveValue, int nrFRPLATF, int nrTRANSF, int iteration, long time)
 	{
-		this.lines = new ArrayList<Line>();
-		this.frequencies = new HashMap<Line, Integer>();
-		this.arcs = new ArrayList<Arc>();
-		this.transferArcs = new ArrayList<Arc>();
-		this.model = model;
-		this.cplex = cplex;
 		this.i = i;
+		this.lines = lines;
+		this.frequencies = frequencies;
+		this.arcs = arcs;
+		this.transferArcs = transferArcs;
+		this.objectiveValue = Math.round(objectiveValue);
+
 		this.iteration = iteration;
 		this.time = time;
-
-		this.objectiveValue = Math.round(cplex.getObjValue());
-
-		getLinesAndFrequencies();
-		getArcs();
-		getTransfers();
-
-
+		this.nrFRPLATF = nrFRPLATF;
+		this.nrTRANSF = nrTRANSF;
 	}
+
 
 	public void writeSummary(String path)
 	{
@@ -96,107 +83,52 @@ public class Solution {
 		}
 
 	}
-
-	private void getLinesAndFrequencies() throws IloException
+	
+	private int getObjectiveValue()
 	{
-		outerloop:
-			for (Line l : i.getLines())
-			{
-				for (Entry<Integer, IloIntVar> entry : l.lineFrequencyVar.entrySet())
-				{
-					int value = (int) Math.round(cplex.getValue(entry.getValue()));
-					if (value > 0)
-					{
-						lines.add(l);
-						frequencies.put(l, entry.getKey());
-						continue outerloop;
-					}
-				}
-
-			}
-	}
-
-	private void getArcs() throws IloException
-	{
-		List<Arc> copyArcs = new ArrayList<Arc>(i.getArcs());
-		Collections.sort(copyArcs, (a1, a2) -> a1.type.compareTo(a2.type));        
-		for (Arc a : copyArcs)
+		int val = 0;
+		for (Map.Entry<Arc, HashMap<Stop, Integer>> arc : arcs.entrySet())
 		{
-			for (Map.Entry<Stop, IloNumVar> entry : a.yvar.entrySet())
+			for (Map.Entry<Stop, Integer> stop : arc.getValue().entrySet())
 			{
-				int value = (int) Math.round(cplex.getValue(entry.getValue()));
-				//if (a.value == 0) continue; //skip in, out and toplatform arcs
-				if (value != 0)
-				{
-					arcs.add(a);
-					if (a.type == Arc.Type.FRPLAT)
-					{
-						nrFRPLATF += value;
-					}
-					else if (a.type == Arc.Type.TRANSF)
-					{
-						nrTRANSF += value;
-					}
-				}
+				val += arc.getKey().value * stop.getValue();
 			}
 		}
-
+		return val;
 	}
 
-	private void getTransfers() throws IloException
+	private void printSolution()
 	{
-		if (Settings.SHORTTRANSFERS)
-		{
-			System.out.println("z decision variables");
-			for (Arc a : i.getArcs())
-			{
-				if (a.type != Arc.Type.TRANSF) continue;
-				int value = (int) Math.round(cplex.getValue(a.zvar));
-				if (value != 0)
-				{
-					transferArcs.add(a);
-				}
-				System.out.println(value + "\t" + a + " stop=" + a.from.stop.shortName);
+		System.out.println("objective value from cplex " + this.objectiveValue);
+		System.out.println("Solution obj: " + this.getObjectiveValue());
 
-			}
-		}
-	}
-
-	private void printSolution() throws IloException
-	{
-		System.out.println("objective value " + this.objectiveValue);
-		System.out.println("minLineCosts " + model.getMinLineCostsObj());
 		System.out.println("x decision variables");
-		outerloop:
-			for (Line l : i.getLines())
-			{
-				String str;
-				for (Entry<Integer, IloIntVar> entry : l.lineFrequencyVar.entrySet())
-				{
-					int value = (int) Math.round(cplex.getValue(entry.getValue()));
-					if (value > 0)
-					{
-						str = value + "\t"+ String.format("%s_%1d %3.2f (%s)", l.shortString(), entry.getKey(), l.costs, l.stopsString());
-						System.out.println(str);
-						continue outerloop;
-					}
-				}
-				str = 0 + "\t"+ String.format("%s_%1d %3.2f (%s)", l.shortString(), 0, l.costs, l.stopsString());
-				System.out.println(str);
+		for (Line l : i.getLines())
+		{
+			String str;
 
+			if (frequencies.containsKey(l))
+			{
+				str = 1 + "\t"+ String.format("%s_%1d %3.2f (%s)", l.shortString(), frequencies.get(l), l.costs, l.stopsString());
 			}
+			else
+			{
+				str = 0 + "\t"+ String.format("%s_%1d %3.2f (%s)", l.shortString(), 0, l.costs, l.stopsString());
+			}
+			System.out.println(str);
+
+		}
 
 		System.out.println("y decision variables (only arcs with a flow and a weight are printed)");
-		List<Arc> copyArcs = new ArrayList<Arc>(i.getArcs());
-		Collections.sort(copyArcs, (a1, a2) -> a1.type.compareTo(a2.type));        
-		for (Arc a : copyArcs)
+   
+		for (Map.Entry<Arc, HashMap<Stop, Integer>> arc : arcs.entrySet())
 		{
-			for (Map.Entry<Stop, IloNumVar> entry : a.yvar.entrySet())
+			for (Map.Entry<Stop, Integer> stop : arc.getValue().entrySet())
 			{
-				int value = (int) Math.round(cplex.getValue(entry.getValue()));
+				int value = stop.getValue();
 				if (value > 0) 
 				{
-					System.out.println(value + "\t" + a + " oStop=" + entry.getKey().shortName);
+					System.out.println(value + "\t" + arc.getKey() + " oStop=" + stop.getKey().shortName);
 
 				}
 			}
@@ -206,15 +138,9 @@ public class Solution {
 		if (Settings.SHORTTRANSFERS)
 		{
 			System.out.println("z decision variables");
-			for (Arc a : i.getArcs())
+			for (Arc a : transferArcs)
 			{
-				if (a.type != Arc.Type.TRANSF) continue;
-				int value = (int) Math.round(cplex.getValue(a.zvar));
-				if (value == 0)
-				{
-					System.out.println(value + "\t" + a + " oStop=" + a.from.stop.shortName);
-				}
-
+				System.out.println(0 + "\t" + a + " oStop=" + a.from.stop.shortName);
 			}
 		}
 	}
@@ -223,10 +149,10 @@ public class Solution {
 	{
 		String dir = "run/" + i.dateTime + "/";
 		File directory = new File(dir);
-	    if (!directory.exists())
-	    {
-	        directory.mkdir();
-	    }
+		if (!directory.exists())
+		{
+			directory.mkdir();
+		}
 		String path = dir + i.dateTime +  "_solution_" + iteration + ".txt";
 		if (args.length > 0)
 		{
@@ -270,7 +196,7 @@ public class Solution {
 		try 
 		{
 			writeSolutionIteration("run/" + i.dateTime + "_solution_final.txt");
-			
+
 
 			//Write results overall file
 			Writer output;
