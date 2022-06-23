@@ -38,6 +38,8 @@ public class Line {
 		this.stops = stops;
 	}
 	
+
+	
 	
 	public Line(Line other, List<Edge> edges, List<Stop> stops)
 	{

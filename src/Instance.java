@@ -107,11 +107,31 @@ public class Instance {
 	{
 		//checks for transfer stations
 		List<Vertex> vertices = new ArrayList<Vertex>();
+		
+		//create in and out vertices for each stop
 		for (Stop s : stops)
 		{
 			vertices.add(s.in);
 			vertices.add(s.out);
-			
+		}
+		
+		//create station-line vertices
+		for (Line l : lines)
+		{
+			for (Stop s : l.stops)
+			{
+				if (!s.lines.containsKey(l))
+				{
+					Vertex lineVertex = new Vertex(s, Vertex.Type.LINE, l);
+					vertices.add(lineVertex);
+					s.lines.put(l, lineVertex);
+				}
+			}
+		}
+		
+		//create platform vertex
+		for (Stop s : stops)
+		{
 			//counting edges of stop
 			Set<Edge> edges = new HashSet<Edge>();
 			for (Line l : s.lines.keySet())
@@ -126,13 +146,7 @@ public class Instance {
 				}
 			}
 			//if a station has more than two edges, then it is a transfer station
-			System.out.println("transferStation: " + s + edges.size());
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+
 			if (edges.size() > 2) 
 			{
 				Vertex platform = new Vertex(s, Vertex.Type.PLAT);
@@ -160,19 +174,7 @@ public class Instance {
 			}
 		}
 		
-		for (Line l : lines)
-		{
-			for (Stop s : l.stops)
-			{
-				if (!s.lines.containsKey(l))
-				{
-					Vertex lineVertex = new Vertex(s, Vertex.Type.LINE, l);
-					vertices.add(lineVertex);
-					s.lines.put(l, lineVertex);
-				}
-			}
-		}
-		
+
 		
 		return Collections.unmodifiableList(vertices);
 	}
