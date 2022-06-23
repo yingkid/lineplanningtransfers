@@ -45,7 +45,7 @@ public class Main {
 //		m.solveIteratively();
 		
 		
-		for (int c = 40; c < 55; c++)
+		for (int c = 42; c < 55; c++)
 		{
 			Instance i = new Instance(path);
 			i.print();

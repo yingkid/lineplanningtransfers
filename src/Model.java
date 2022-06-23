@@ -4,7 +4,6 @@ import java.util.Map.*;
 
 import ilog.concert.*;
 import ilog.cplex.*;
-import ilog.cplex.IloCplex.UnknownObjectException;
 public class Model {
 	private IloCplex cplex;
 	private Instance i;
@@ -392,7 +391,6 @@ public class Model {
 				{
 					transferArcs.add(a);
 				}
-				System.out.println(value + "\t" + a + " stop=" + a.from.stop.shortName);
 
 			}
 		}
@@ -418,7 +416,7 @@ public class Model {
 	}
 
 
-	public boolean solveIteratively() throws IloException
+	public List<Solution> solveIteratively() throws IloException
 	{
 		System.out.println("Solve iteratively");
 		List<Solution> solutions = new ArrayList<Solution>();
@@ -452,13 +450,16 @@ public class Model {
 		}
 		else
 		{
-
 			System.err.println("No solution");
 		}
+		
+		
+		//isFeasible(solutions.get(solutions.size()-1));
+
 
 		cplex.close();
 
-		return true;
+		return solutions;
 	}
 
 	private boolean isFeasible(Solution sol)
@@ -468,22 +469,68 @@ public class Model {
 		try {
 			for (Line l : i.getLines())
 			{
-				int f = sol.frequencies.get(l);
-				
-				
-				for (Entry<Integer, IloIntVar> entry : xvars.get(l).entrySet())
+				if (sol.frequencies.containsKey(l))
 				{
-					int val = f == entry.getKey() ? 1 : 0;
-					IloConstraint con = cplex.addEq(entry.getValue(), val);
-					constraints.add(con);
+					int f = sol.frequencies.get(l);
+					for (Entry<Integer, IloIntVar> entry : xvars.get(l).entrySet())
+					{
+						int val = f == entry.getKey() ? 1 : 0;
+						IloConstraint con = cplex.addEq(entry.getValue(), val);
+						constraints.add(con);
+					}
 				}
+				else
+				{
+					for (Entry<Integer, IloIntVar> entry : xvars.get(l).entrySet())
+					{
+						IloConstraint con = cplex.addEq(entry.getValue(), 0);
+						constraints.add(con);
+					}
+				}
+				
+				
 
 			}
 
+			for (Arc a : i.getArcs())
+			{
+				for (Map.Entry<Stop, IloNumVar> entry : yvars.get(a).entrySet())
+				{
+					int val = sol.arcs.get(a).get(entry.getKey());
+					IloConstraint con2 = cplex.addLe(entry.getValue(), val + 1);
+					constraints.add(con2);
+
+				}
+			}
 			
+//			if (Settings.SHORTTRANSFERS)
+//			{
+//				for (Arc a : i.getArcs())
+//				{
+//					if (a.type != Arc.Type.TRANSF) continue;
+//					int val = sol.transferArcs.contains(a) ? 1 : 0;
+//					IloConstraint con = cplex.addEq(zvars.get(a), val);
+//					constraints.add(con);
+//				}
+//			}
 			if (feasible = cplex.solve())
 			{
-
+				System.out.println("This solution is feasible " + sol.iteration);
+			}
+			else
+			{
+				System.out.println("This solution is infeasible " + sol.iteration);
+			}
+			
+			for (IloConstraint con : constraints)
+			{
+				cplex.remove(con);
+			}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			return feasible;
 		} 
