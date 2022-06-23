@@ -116,6 +116,7 @@ public class Instance {
 			Set<Edge> edges = new HashSet<Edge>();
 			for (Line l : s.lines.keySet())
 			{
+
 				for (Edge e : l.edges)
 				{
 					if (e.leftStop == s || e.rightStop == s)
@@ -125,11 +126,18 @@ public class Instance {
 				}
 			}
 			//if a station has more than two edges, then it is a transfer station
-
+			System.out.println("transferStation: " + s + edges.size());
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			if (edges.size() > 2) 
 			{
-				Vertex platform = s.addPlatformVertex();
+				Vertex platform = new Vertex(s, Vertex.Type.PLAT);
 				vertices.add(platform);
+				s.addPlatformVertex(platform);
 			}
 			else if (edges.size() == 2)
 			{
@@ -142,9 +150,9 @@ public class Instance {
 							int idx = l.edges.indexOf(e);
 							if (idx == 0 || idx == sizeEdges - 1)
 							{
-								Vertex platform = s.addPlatformVertex();
+								Vertex platform = new Vertex(s, Vertex.Type.PLAT);
 								vertices.add(platform);
-								System.out.println("terminalstation " + s);
+								s.addPlatformVertex(platform);
 								break outerloop;
 							}
 						}
