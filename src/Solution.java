@@ -8,7 +8,7 @@ public class Solution {
 	public final HashMap<Line, Integer> frequencies;
 	public final HashMap<Arc, HashMap<Stop, Integer>> arcs;
 	public final List<Arc> transferArcs;
-	public List<Cycle> cycles;
+	public final List<Cycle> cycles;
 
 	public final int iteration;
 	public final long time;
@@ -24,6 +24,7 @@ public class Solution {
 		this.frequencies = frequencies;
 		this.arcs = arcs;
 		this.transferArcs = transferArcs;
+		this.cycles = new ArrayList<Cycle>();
 		this.objectiveValue = Math.round(objectiveValue);
 
 		this.iteration = iteration;
@@ -189,7 +190,7 @@ public class Solution {
 
 	public void addCycles(List<Cycle> cycles)
 	{
-		this.cycles = cycles;
+		this.cycles.addAll(cycles);
 	}
 	public void writeFinalSolution()
 	{
