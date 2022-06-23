@@ -469,10 +469,13 @@ public class Model {
 			for (Line l : i.getLines())
 			{
 				int f = sol.frequencies.get(l);
-
+				
+				
 				for (Entry<Integer, IloIntVar> entry : xvars.get(l).entrySet())
 				{
-					
+					int val = f == entry.getKey() ? 1 : 0;
+					IloConstraint con = cplex.addEq(entry.getValue(), val);
+					constraints.add(con);
 				}
 
 			}
