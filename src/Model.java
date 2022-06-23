@@ -21,7 +21,7 @@ public class Model {
 		{
 			initVariables();
 			initConstraints();
-			setObjective();
+			initObjective();
 		}
 		catch (Exception e)
 		{
@@ -267,7 +267,7 @@ public class Model {
 	}
 	
 	
-	private void setObjective() throws IloException
+	private void initObjective() throws IloException
 	{
 		minTravelTime = cplex.linearNumExpr();
 		for (Arc a : i.getArcs())
