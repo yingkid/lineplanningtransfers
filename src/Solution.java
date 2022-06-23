@@ -4,7 +4,7 @@ import java.util.*;
 public class Solution {
 	public final Instance i;
 	public final long objectiveValue;
-	public final List<Line> lines;
+	public final HashMap<Line, Boolean> lines;
 	public final HashMap<Line, Integer> frequencies;
 	public final HashMap<Arc, HashMap<Stop, Integer>> arcs;
 	public final List<Arc> transferArcs;
@@ -16,7 +16,7 @@ public class Solution {
 	public final int nrFRPLATF;
 	public final int nrTRANSF;
 
-	public Solution(Instance i, List<Line> lines, HashMap<Line, Integer> frequencies, HashMap<Arc, HashMap<Stop, Integer>> arcs, List<Arc> transferArcs, 
+	public Solution(Instance i, HashMap<Line, Boolean> lines, HashMap<Line, Integer> frequencies, HashMap<Arc, HashMap<Stop, Integer>> arcs, List<Arc> transferArcs, 
 			double objectiveValue, int nrFRPLATF, int nrTRANSF, int iteration, long time)
 	{
 		this.i = i;

@@ -30,12 +30,12 @@ public class Instance {
 		this.stops = readStops(path + "Stop.giv");
 		this.edges = readEdges(path + "Edge.giv");
 		this.lines = readLines(path + "Pool.giv", path + "Pool-Cost.giv");
-		this.edges = readLoad(path + "Load.giv");
+		readLoad(path + "Load.giv");
 		this.pairs = readODpairs(path + "OD.giv");
-		this.lines = createFreq();
+		setFrequencies();
 		this.vertices = createVertices();
 		this.arcs = createArcs();
-
+		
 		System.out.println("vertices " + vertices.size());
 		System.out.println("arcs " + arcs.size());
 	}
@@ -49,9 +49,9 @@ public class Instance {
 		this.stops = readStops(path + "Stop.giv");
 		this.edges = readEdges(path + "Edge.giv");
 		this.lines = generateLinePool(e.getLinesWithStops());
-		this.edges = readLoad(path + "Load.giv");
+		readLoad(path + "Load.giv");
 		this.pairs = readODpairs(path + "OD.giv");
-		this.lines = createFreq();
+		setFrequencies();
 		this.vertices = createVertices();
 		this.arcs = createArcs();
 
@@ -98,13 +98,12 @@ public class Instance {
 		return arcs;
 	}
 
-	private List<Line> createFreq()
+	private void setFrequencies()
 	{
 		for (Line l : lines)
 		{
 			l.setFrequencies();
 		}
-		return lines;
 	}
 
 	private List<Vertex> createVertices()
@@ -252,10 +251,10 @@ public class Instance {
 					Integer.parseInt(sArray[5].trim()));
 			edges.add(e);
 		}
-		return edges;
+		return Collections.unmodifiableList(edges);
 	}
 
-	private List<Edge> readLoad(String path)
+	private void readLoad(String path)
 	{
 		System.out.println("readLoad: " + path);
 		List<String> input = readFile(path);
@@ -267,7 +266,6 @@ public class Instance {
 			edge.minFreq = Integer.parseInt(sArray[2].trim());
 			edge.maxFreq = Integer.parseInt(sArray[3].trim());
 		}
-		return edges;
 	}
 
 	public List<Stop> readStops(String path)
@@ -286,7 +284,7 @@ public class Instance {
 					Double.parseDouble(sArray[4]));
 			stops.add(s);
 		}
-		return stops;
+		return Collections.unmodifiableList(stops);
 	}
 
 	public List<OD> readODpairs(String path)
@@ -302,7 +300,7 @@ public class Instance {
 			OD pair = new OD(o, d, Integer.parseInt(sArray[2].trim()));
 			pairs.add(pair);
 		}
-		return pairs;
+		return Collections.unmodifiableList(pairs);
 	}
 
 	public List<Line> readLines(String path, String pathCosts) throws IOException
@@ -333,8 +331,6 @@ public class Instance {
 			}
 			lines.add(line);
 			line.finish();
-
-
 		}
 		catch (Exception e)
 		{
@@ -363,7 +359,7 @@ public class Instance {
 			}
 		}
 
-		return lines;
+		return Collections.unmodifiableList(lines);
 
 	}
 
@@ -510,15 +506,9 @@ public class Instance {
 		}
 	}
 
-	@Override
-	public String toString() {
-		return "Instance [stops=" + stops + ", edges=" + edges + ", ODpairs=" + pairs + "]";
-	}
-
 	public List<Stop> getStops() {
 		return stops;
 	}
-
 
 	public List<OD> getPairs() {
 		return pairs;
@@ -604,8 +594,6 @@ public class Instance {
 
 	public void printLineFile()
 	{
-
-
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(Main.path + "Pool.giv"));
 			bw.write("# line_index; link_order; link_index\n");

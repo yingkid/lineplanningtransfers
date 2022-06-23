@@ -5,7 +5,7 @@ public class Arc {
 	public final Vertex to;
 	public final Type type;
 	public final int value;
-	public int freq;
+	public int freq;		//long transfer arcs
 	public Line line;
 	
 	public Arc(Vertex from, Vertex to, Arc.Type type, int value, Object...obj)

@@ -13,7 +13,7 @@ public class Model {
 	private HashMap<Arc, IloNumVar> zvars;
 	private IloLinearNumExpr minTravelTime;
 	private IloLinearNumExpr minLineCosts;
-	
+
 	public Model(Instance i) 
 	{
 		this.i = i;
@@ -36,7 +36,7 @@ public class Model {
 		cplex = new IloCplex();
 		//cplex.setOut(null);
 		cplex.setParam(IloCplex.Param.MIP.Tolerances.MIPGap	, Settings.CPLEXMIPGAP);
-		
+
 		xvars = new HashMap<Line,HashMap<Integer, IloIntVar>>();
 		yvars = new HashMap<Arc, HashMap<Stop, IloNumVar>>();
 		zvars = new HashMap<Arc, IloNumVar>();
@@ -72,6 +72,8 @@ public class Model {
 		//z-variables
 		if (Settings.SHORTTRANSFERS)
 		{
+			System.out.println("initialize z-variables");
+	
 			for (Arc a : i.getArcs())
 			{
 				if (a.type != Arc.Type.TRANSF) continue;
@@ -197,7 +199,6 @@ public class Model {
 				List<Arc> arcsLine = new ArrayList<Arc>();
 				arcsLine.addAll(l.backwardArcs);
 				arcsLine.addAll(l.forwardArcs);
-				System.out.println(l + " " + arcsLine);
 				for (Arc a : arcsLine)
 				{
 					if (a.type == Arc.Type.FRPLAT)
@@ -226,6 +227,7 @@ public class Model {
 	{
 		if (Settings.SHORTTRANSFERS)
 		{
+			System.out.println("initialize z-constraints");
 			for (Arc a : i.getArcs())
 			{
 				IloLinearNumExpr exprLeft = cplex.linearNumExpr();
@@ -239,13 +241,7 @@ public class Model {
 					exprRight.addTerm(Settings.BIGM, zvars.get(a));
 					IloConstraint z = cplex.addLe(exprLeft, exprRight);
 					z.setName("yz");
-					
-//					IloConstraint z0 = cplex.eq(a.zvar, 0);
-//					IloConstraint z2 = cplex.eq(exprLeft, 0);
-//					cplex.add(cplex.ifThen(z0, z2));
-					
 				}
-				
 			}
 		}
 	}
@@ -265,8 +261,8 @@ public class Model {
 			excludedCycles.add(cycle);
 		}
 	}
-	
-	
+
+
 	private void initObjective() throws IloException
 	{
 		minTravelTime = cplex.linearNumExpr();
@@ -277,7 +273,7 @@ public class Model {
 				minTravelTime.addTerm(a.value, yvar);
 			}
 		}
-		
+
 
 
 		minLineCosts = cplex.linearNumExpr();
@@ -304,9 +300,9 @@ public class Model {
 
 		cplex.add(cplex.minimize(cplex.staticLex(objArray)));
 	}
-	
-	
-	
+
+
+
 	public double getMinTravelTimeObj()
 	{
 		try 
@@ -325,21 +321,20 @@ public class Model {
 	{
 		try 
 		{
-			return cplex.getValue( minLineCosts);
+			return cplex.getValue(minLineCosts);
 		} 
 		catch (IloException e) 
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return 0;
 	}
-	
+
 	public Solution generateSolution(int iteration, long duration) throws IloException
 	{
 		//x-variables
-		List<Line> lines = new ArrayList<Line>();
-		HashMap<Line, Integer> frequencies = new HashMap<Line, Integer>();
+		HashMap<Line, Boolean> lines = new LinkedHashMap<Line, Boolean>();
+		HashMap<Line, Integer> frequencies = new LinkedHashMap<Line, Integer>();
 		outerloop:
 			for (Line l : i.getLines())
 			{
@@ -349,18 +344,19 @@ public class Model {
 					int value = (int) Math.round(cplex.getValue(entry.getValue()));
 					if (value > 0)
 					{
-						lines.add(l);
+						lines.put(l, true);
 						frequencies.put(l, entry.getKey());
 						continue outerloop;
 					}
 				}
+				lines.put(l, false);
 
 			}
-		
+
 		//y-variables
 		int nrFRPLATF = 0;
 		int nrTRANSF = 0;
-		HashMap<Arc, HashMap<Stop, Integer>> arcs = new HashMap<Arc, HashMap<Stop, Integer>>();
+		HashMap<Arc, HashMap<Stop, Integer>> arcs = new LinkedHashMap<Arc, HashMap<Stop, Integer>>();
 		for (Arc a : i.getArcs())
 		{
 			HashMap<Stop, Integer> flowPerOrigin = new HashMap<Stop, Integer>();
@@ -383,7 +379,7 @@ public class Model {
 			}
 			arcs.put(a, flowPerOrigin);
 		}
-		
+
 		//z-variables
 		List<Arc> transferArcs = new ArrayList<Arc>();
 		if (Settings.SHORTTRANSFERS)
@@ -440,7 +436,7 @@ public class Model {
 			sol.addCycles(cycles);
 			sol.writeSummary("run/" + i.dateTime + "_solution.txt");
 			sol.writeSolutionIteration();
-			
+
 			while (z != null)
 			{
 				it++;
@@ -456,7 +452,7 @@ public class Model {
 		}
 		else
 		{
-			
+
 			System.err.println("No solution");
 		}
 
@@ -464,15 +460,15 @@ public class Model {
 
 		return true;
 	}
-	
+
 	private boolean isFeasible(Solution s)
 	{
 		boolean feasible = false; 
 		try {
-			
+
 			if (feasible = cplex.solve())
 			{
-				
+
 			}
 			return feasible;
 		} 
@@ -481,20 +477,20 @@ public class Model {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return false;
 	}
-	
+
 	private void exportModel(int iteration) throws IloException
 	{
 		String dirPath = "run/" + i.dateTime + "/";
 		File directory = new File(dirPath);
-	    if (!directory.exists())
-	    {
-	        directory.mkdir();
-	    }
+		if (!directory.exists())
+		{
+			directory.mkdir();
+		}
 		cplex.exportModel(dirPath + "iteration" + iteration + ".lp");
-		
+
 	}
 
 	private Cycle cycleCheck(Solution sol) 
