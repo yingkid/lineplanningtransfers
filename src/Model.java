@@ -20,7 +20,7 @@ public class Model {
 		try
 		{
 			initVariables();
-			populate();
+			initConstraints();
 			setObjective();
 		}
 		catch (Exception e)
@@ -82,14 +82,14 @@ public class Model {
 		}
 	}
 
-	private void populate() throws IloException
+	private void initConstraints() throws IloException
 	{
-		populateX();
-		populateY();
-		populateZ();
+		initXconstraints();
+		initYconstraints();
+		initZconstraints();
 	}
 
-	private void populateX() throws IloException 
+	private void initXconstraints() throws IloException 
 	{
 		//x-variables
 		System.out.println("x-constraints");
@@ -121,7 +121,7 @@ public class Model {
 
 	}
 
-	private void populateY() throws IloException
+	private void initYconstraints() throws IloException
 	{
 		//y-variables
 		//flow conservation constraints
@@ -222,7 +222,7 @@ public class Model {
 		}
 	}
 
-	private void populateZ() throws IloException 
+	private void initZconstraints() throws IloException 
 	{
 		if (Settings.SHORTTRANSFERS)
 		{
@@ -250,7 +250,7 @@ public class Model {
 		}
 	}
 
-	private void populateZexcludedArcs(Cycle cycle) throws IloException
+	private void initZexcludedArcs(Cycle cycle) throws IloException
 	{
 		if (cycle != null)
 		{
@@ -444,7 +444,7 @@ public class Model {
 			while (z != null)
 			{
 				it++;
-				populateZexcludedArcs(z);
+				initZexcludedArcs(z);
 				sol = solve(it, startTime);
 				z = cycleCheck(sol);
 				cycles.add(z);
