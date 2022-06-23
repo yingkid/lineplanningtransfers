@@ -461,11 +461,23 @@ public class Model {
 		return true;
 	}
 
-	private boolean isFeasible(Solution s)
+	private boolean isFeasible(Solution sol)
 	{
+		List<IloConstraint> constraints = new ArrayList<IloConstraint>();
 		boolean feasible = false; 
 		try {
+			for (Line l : i.getLines())
+			{
+				int f = sol.frequencies.get(l);
 
+				for (Entry<Integer, IloIntVar> entry : xvars.get(l).entrySet())
+				{
+					
+				}
+
+			}
+
+			
 			if (feasible = cplex.solve())
 			{
 

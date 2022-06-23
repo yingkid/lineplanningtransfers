@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.Map.Entry;
 
 
 public class EAN {
@@ -19,11 +20,11 @@ public class EAN {
 		this.transfers = generateTransfers(sol);
 		generateEAforLines(sol);
 		generateTransferActivities(sol);
-		
+
 		sol.ean = this;
 		System.out.println("Size events:" + events.size());
 		System.out.println("Size activities:" + activities.size());
-		
+
 	}
 
 	private List<Transfer> generateTransfers(Solution sol)
@@ -42,11 +43,16 @@ public class EAN {
 	private void generateEAforLines(Solution sol)
 	{
 		System.out.println("EAN: generate events and activities for lines");
-		for (Line l : sol.lines)
+		for (Entry<Line, Boolean> entry : sol.lines.entrySet())
 		{
-			//create Event and Activities for line in forward and backward direction
-			createEAforLine(l, Event.Direction.FORWARD);
-			createEAforLine(l, Event.Direction.BACKWARD);
+			if (entry.getValue())
+			{
+				Line l = entry.getKey();
+				//create Event and Activities for line in forward and backward direction
+				createEAforLine(l, Event.Direction.FORWARD);
+				createEAforLine(l, Event.Direction.BACKWARD);
+			}
+
 		}
 	}
 
@@ -54,9 +60,13 @@ public class EAN {
 	{
 		System.out.println("EAN: generate transfer activities");
 		List<Stop> allStopLines = new ArrayList<Stop>();
-		for (Line l : sol.lines)
+		for (Entry<Line, Boolean> entry : sol.lines.entrySet())
 		{
-			allStopLines.addAll(l.stops);
+			if (entry.getValue())
+			{
+				Line l = entry.getKey();
+				allStopLines.addAll(l.stops);
+			}
 		}
 
 		transferStations = new ArrayList<Stop>();
@@ -111,8 +121,8 @@ public class EAN {
 				}
 			}
 		}
-		
-		
+
+
 		int size = events.size();
 
 		activityMatrix = new Activity[size][size];
@@ -122,7 +132,7 @@ public class EAN {
 			int index_to = events.indexOf(a.to);
 			activityMatrix[index_from][index_to] = a;
 		}
-		
+
 	}
 
 	private Transfer checkTransfer(Event arr, Event dep)
@@ -192,7 +202,7 @@ public class EAN {
 			}
 		}
 	}
-	
+
 	private Arc getArcFromList(Event dep, Event arr, List<Arc> arcs)
 	{
 		Stop departureStop = dep.stop;

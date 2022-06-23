@@ -10,9 +10,7 @@ public class Vertex {
 	private List<Arc> arcsOut = new ArrayList<Arc>(); //outgoing arcs
 	private List<Arc> arcsIn = new ArrayList<Arc>(); //ingoing arcs
 	public List<Vertex> vertexTo = new ArrayList<Vertex>();
-	public List<Vertex> vertexFrom = new ArrayList<Vertex>();
-	public static List<Vertex> all = new ArrayList<Vertex>(); 
-	
+	public List<Vertex> vertexFrom = new ArrayList<Vertex>();	
 	
 	public Vertex(Stop s, Vertex.Type type, Line...line)
 	{
@@ -22,7 +20,6 @@ public class Vertex {
 		{
 			this.line = line[0];
 		}
-		all.add(this);
 		s.addVertex(this);
 	}
 	

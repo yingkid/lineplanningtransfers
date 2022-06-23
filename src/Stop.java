@@ -27,9 +27,10 @@ public class Stop {
 		this.lines = new HashMap<Line, Vertex>();
 	}
 	
-	public void addPlatformVertex()
+	public Vertex addPlatformVertex()
 	{
 		this.platform = new Vertex(this, Vertex.Type.PLAT);
+		return platform;
 	}
 	
 	public void addVertex(Vertex v) 

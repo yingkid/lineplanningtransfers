@@ -36,19 +36,8 @@ public class Line {
 		}
 		
 		this.stops = stops;
-		createLineVertices();
 	}
 	
-	public void createLineVertices()
-	{
-		for (Stop s : stops)
-		{
-			if (!s.lines.containsKey(this))
-			{
-				s.lines.put(this, new Vertex(s, Vertex.Type.LINE, this));
-			}
-		}
-	}
 	
 	public Line(Line other, List<Edge> edges, List<Stop> stops)
 	{

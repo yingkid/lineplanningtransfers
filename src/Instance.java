@@ -23,7 +23,6 @@ public class Instance {
 
 	public Instance (String path) throws Exception
 	{
-		Vertex.all.clear();
 		System.out.println("Instance path: " + path);
 		this.name = path;
 
@@ -42,7 +41,6 @@ public class Instance {
 	
 	public Instance (String path, Experiment e) throws Exception
 	{
-		Vertex.all.clear();
 		System.out.println("Instance path: " + path);
 		this.name = path;
 
@@ -61,7 +59,6 @@ public class Instance {
 
 	public Instance(Generator g)
 	{
-		Vertex.all.clear();
 		this.name = g.name;
 		this.edges = new ArrayList<Edge>();
 	}
@@ -109,8 +106,13 @@ public class Instance {
 	private List<Vertex> createVertices()
 	{
 		//checks for transfer stations
+		List<Vertex> vertices = new ArrayList<Vertex>();
 		for (Stop s : stops)
 		{
+			vertices.add(s.in);
+			vertices.add(s.out);
+			
+			//counting edges of stop
 			Set<Edge> edges = new HashSet<Edge>();
 			for (Line l : s.lines.keySet())
 			{
@@ -126,7 +128,8 @@ public class Instance {
 
 			if (edges.size() > 2) 
 			{
-				s.addPlatformVertex();
+				Vertex platform = s.addPlatformVertex();
+				vertices.add(platform);
 			}
 			else if (edges.size() == 2)
 			{
@@ -139,7 +142,8 @@ public class Instance {
 							int idx = l.edges.indexOf(e);
 							if (idx == 0 || idx == sizeEdges - 1)
 							{
-								s.addPlatformVertex();
+								Vertex platform = s.addPlatformVertex();
+								vertices.add(platform);
 								System.out.println("terminalstation " + s);
 								break outerloop;
 							}
@@ -147,7 +151,22 @@ public class Instance {
 					}
 			}
 		}
-		return Vertex.all;
+		
+		for (Line l : lines)
+		{
+			for (Stop s : l.stops)
+			{
+				if (!s.lines.containsKey(l))
+				{
+					Vertex lineVertex = new Vertex(s, Vertex.Type.LINE, l);
+					vertices.add(lineVertex);
+					s.lines.put(l, lineVertex);
+				}
+			}
+		}
+		
+		
+		return Collections.unmodifiableList(vertices);
 	}
 	private List<Arc> createArcs()
 	{
@@ -420,6 +439,7 @@ public class Instance {
 
 	private Vertex findVertex(Stop stop, Line line)
 	{
+		System.out.println("findVertex" + stop + "" + line);
 		for (Vertex v : vertices)
 		{
 			if (v.line == line && v.stop == stop)
@@ -583,7 +603,6 @@ public class Instance {
 			}
 			l.addStops(stops);
 			l.addEdge(this);
-			l.createLineVertices();
 			lines.add(l);
 			l.minFreq = 1;
 			l.maxFreq = 4;

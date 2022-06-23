@@ -56,7 +56,6 @@ public class Generator
 			}
 			l.addStops(stops);
 			l.addEdge(instance);
-			l.createLineVertices();
 			lines.add(l);
 			l.minFreq = 1;
 			l.maxFreq = 4;

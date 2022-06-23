@@ -5,8 +5,8 @@ import java.util.List;
 
 public class Main {
 
-	//public static String path = "datasets\\athens\\basisreduced\\";
-	public static String path = "datasets\\athens\\basis\\";
+	public static String path = "datasets\\athens\\basisreduced\\";
+	//public static String path = "datasets\\athens\\basis\\";
 	//public static String path = "datasets\\toy\\basis\\";
 	//public static String path = "datasets\\grid\\basis\\";
 
@@ -48,11 +48,11 @@ public class Main {
 		for (int c = 40; c < 55; c++)
 		{
 			Instance i = new Instance(path);
-			//i.print();
+			i.print();
 			i.printToFile();
 
 
-			Settings.setMaxLineCosts(c*100);
+			Settings.setMaxLineCosts(c);
 			Model m = new Model(i);
 			m.solveIteratively();
 		}
