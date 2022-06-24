@@ -17,7 +17,7 @@ public class Settings {
 	public static final boolean MINTRAVELTIME = true;
 	public static final boolean MINLINECOSTS = false;
 	public static final int LONGTRANSFERCOSTSFACTOR = 1;
-	public static final boolean LAGRANGIANRELAXATION = true;
+	public static final boolean LAGRANGIANRELAXATION = false;
 	public static int MAXLINECOSTS = 45;
 	
 	public static void setMaxLineCosts(int val)

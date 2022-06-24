@@ -10,6 +10,7 @@ public class Model {
 	private HashMap<Line,HashMap<Integer, IloIntVar>> xvars;
 	private HashMap<Arc, HashMap<Stop, IloNumVar>> yvars;
 	private HashMap<Arc, IloNumVar> zvars;
+	public HashMap<Arc, IloConstraint> shortTransferConstraints;
 	private IloLinearNumExpr minTravelTime;
 	private IloLinearNumExpr minLineCosts;
 
@@ -224,7 +225,8 @@ public class Model {
 
 	private void initZconstraints() throws IloException 
 	{
-		if (Settings.SHORTTRANSFERS)
+		this.shortTransferConstraints = new HashMap<Arc, IloConstraint>();
+		if (Settings.SHORTTRANSFERS && !Settings.LAGRANGIANRELAXATION)
 		{
 			System.out.println("initialize z-constraints");
 			for (Arc a : i.getArcs())
@@ -239,7 +241,8 @@ public class Model {
 					}
 					exprRight.addTerm(Settings.BIGM, zvars.get(a));
 					IloConstraint z = cplex.addLe(exprLeft, exprRight);
-					z.setName("yz");
+					z.setName("transferArc");
+					this.shortTransferConstraints.put(a, z);
 				}
 			}
 		}
@@ -273,7 +276,19 @@ public class Model {
 			}
 		}
 
-
+		
+		if (Settings.LAGRANGIANRELAXATION)
+		{
+			for (Arc a : i.getArcs())
+			{
+			
+				if (a.type == Arc.Type.TRANSF)
+				{
+					minTravelTime.addTerm(-Settings.BIGM, zvars.get(a));
+				}
+			}
+		}
+		
 
 		minLineCosts = cplex.linearNumExpr();
 		for (Line l : i.getLines())
@@ -290,7 +305,7 @@ public class Model {
 			cplex.addMinimize(minTravelTime);
 			return;
 		}
-		if (Settings.MINTRAVELTIME)
+		if (Settings.MINLINECOSTS)
 		{
 			cplex.addMinimize(minLineCosts);
 			return;
@@ -416,48 +431,57 @@ public class Model {
 	}
 
 
-	public List<Solution> solveIteratively() throws IloException
+	public List<Solution> solveIteratively()
 	{
 		System.out.println("Solve iteratively");
 		List<Solution> solutions = new ArrayList<Solution>();
-
-		int it = 1;
-		long startTime = System.nanoTime();
-		Solution sol = solve(it, startTime);
-		solutions.add(sol);
-
-		if (sol != null)
+		try
 		{
-			List<Cycle> cycles = new ArrayList<Cycle>();
-			Cycle z = cycleCheck(sol);
-			cycles.add(z);
-			sol.addCycles(cycles);
-			sol.writeSummary("run/" + i.dateTime + "_solution.txt");
-			sol.writeSolutionIteration();
 
-			while (z != null)
+
+			int it = 1;
+			long startTime = System.nanoTime();
+			Solution sol = solve(it, startTime);
+			solutions.add(sol);
+
+			if (sol != null)
 			{
-				it++;
-				initZexcludedArcs(z);
-				sol = solve(it, startTime);
-				z = cycleCheck(sol);
+				List<Cycle> cycles = new ArrayList<Cycle>();
+				Cycle z = cycleCheck(sol);
 				cycles.add(z);
 				sol.addCycles(cycles);
 				sol.writeSummary("run/" + i.dateTime + "_solution.txt");
 				sol.writeSolutionIteration();
+
+				while (z != null)
+				{
+					it++;
+					initZexcludedArcs(z);
+					sol = solve(it, startTime);
+					z = cycleCheck(sol);
+					cycles.add(z);
+					sol.addCycles(cycles);
+					sol.writeSummary("run/" + i.dateTime + "_solution.txt");
+					sol.writeSolutionIteration();
+				}
+				sol.writeFinalSolution();
 			}
-			sol.writeFinalSolution();
+			else
+			{
+				System.err.println("No solution");
+			}
+			
+			
+			//isFeasible(solutions.get(solutions.size()-1));
+
+
+			cplex.close();
 		}
-		else
+		catch (Exception e)
 		{
-			System.err.println("No solution");
+			e.printStackTrace();
 		}
 		
-		
-		//isFeasible(solutions.get(solutions.size()-1));
-
-
-		cplex.close();
 
 		return solutions;
 	}

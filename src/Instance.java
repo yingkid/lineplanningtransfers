@@ -21,7 +21,7 @@ public class Instance {
 	public List<Cycle> excludedCycles = new ArrayList<Cycle>();
 
 
-	public Instance (String path) throws Exception
+	public Instance (String path)
 	{
 		System.out.println("Instance path: " + path);
 		this.name = path;
@@ -39,14 +39,14 @@ public class Instance {
 		System.out.println("arcs " + arcs.size());
 	}
 	
-	public Instance (String path, Experiment e) throws Exception
+	public Instance (String path, List<int[]> lines)
 	{
 		System.out.println("Instance path: " + path);
 		this.name = path;
 
 		this.stops = readStops(path + "Stop.giv");
 		this.edges = readEdges(path + "Edge.giv");
-		this.lines = generateLinePool(e.getLinesWithStops());
+		this.lines = generateLinePool(lines);
 		readLoad(path + "Load.giv");
 		this.pairs = readODpairs(path + "OD.giv");
 		setFrequencies();
@@ -332,7 +332,7 @@ public class Instance {
 		return Collections.unmodifiableList(pairs);
 	}
 
-	public List<Line> readLines(String path, String pathCosts) throws IOException
+	public List<Line> readLines(String path, String pathCosts)
 	{
 		System.out.println("readLines: " + path);
 		List<Line> lines = new ArrayList<Line>();
@@ -621,10 +621,10 @@ public class Instance {
 		return lines;
 	}
 
-	public void printLineFile()
+	public void printLineFile(String path)
 	{
 		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter(Main.path + "Pool.giv"));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "Pool.giv"));
 			bw.write("# line_index; link_order; link_index\n");
 			for (Line l : lines)
 			{
