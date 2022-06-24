@@ -30,7 +30,7 @@ public class EAN {
 	private List<Transfer> generateTransfers(Solution sol)
 	{
 		System.out.println("EAN: generate transfers");
-		
+		List<Transfer> transfers = new ArrayList<Transfer>();
 		for (Arc a : sol.getTransferArcs())
 		{
 			Transfer t = new Transfer(a.from.line, a.to.line, a.from.stop, a);
