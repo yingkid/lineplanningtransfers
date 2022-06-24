@@ -34,8 +34,9 @@ public class Solution {
 	}
 
 
-	public void writeSummary(String path)
+	public void writeSummary()
 	{
+		String path = "run/" + i.name + "/" + i.dateTime + "_solution.txt";
 		try
 		{
 			File f = new File(path);
@@ -164,16 +165,18 @@ public class Solution {
 
 	public void writeSolutionIteration(String...args) 
 	{
-		String dir = "run/" + i.dateTime + "/";
+		
+		String dir = "run/" + i.name + "/" + i.dateTime + "/";
 		File directory = new File(dir);
 		if (!directory.exists())
 		{
 			directory.mkdir();
 		}
-		String path = dir + i.dateTime +  "_solution_" + iteration + ".txt";
+		
+		String path = dir + "solution_" + iteration + ".txt";
 		if (args.length > 0)
 		{
-			path = "run/" + i.dateTime + "_solution_final.txt";
+			path = "run/" + i.name + "/" + i.dateTime + "_solution_final.txt";
 		}
 		try {
 			PrintStream stdout = System.out;
@@ -212,15 +215,13 @@ public class Solution {
 	{
 		try 
 		{
-			writeSolutionIteration("run/" + i.dateTime + "_solution_final.txt");
-
-
+			writeSolutionIteration("do");
 			//Write results overall file
 			Writer output;
-			output = new BufferedWriter(new FileWriter("run/all_solutions.txt", true));
+			output = new BufferedWriter(new FileWriter("run/" + i.name + "/all_solutions.txt", true));
 			List<String> outputStr = new ArrayList<String>();
 			outputStr.add(i.dateTime + "");
-			outputStr.add(i.name + "");
+			outputStr.add(i.path + "");
 			outputStr.add(objectiveValue + "");
 			outputStr.add(iteration + "");
 			outputStr.add(i.getStops().size() + "");

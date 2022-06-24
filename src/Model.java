@@ -454,7 +454,7 @@ public class Model {
 				Cycle z = cycleCheck(sol);
 				cycles.add(z);
 				sol.addCycles(cycles);
-				sol.writeSummary("run/" + i.dateTime + "_solution.txt");
+				sol.writeSummary();
 				sol.writeSolutionIteration();
 
 				while (z != null)
@@ -465,7 +465,7 @@ public class Model {
 					z = cycleCheck(sol);
 					cycles.add(z);
 					sol.addCycles(cycles);
-					sol.writeSummary("run/" + i.dateTime + "_solution.txt");
+					sol.writeSummary();
 					sol.writeSolutionIteration();
 				}
 				sol.writeFinalSolution();

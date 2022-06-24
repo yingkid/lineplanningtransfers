@@ -81,7 +81,7 @@ public class Run {
 	{
 		for (int c = 6; c <= 10; c++)
 		{
-			Instance i = new Instance(path);
+			Instance i = new Instance("toy", path);
 			i.print();
 			i.printToFile();
 
@@ -116,7 +116,7 @@ public class Run {
 		
 		
 	
-		Instance i = new Instance(path, lines);
+		Instance i = new Instance("grid", path, lines);
 		i.printToFile();
 		i.generateLinePool(lines);
 		i.printLineFile(path);
@@ -129,7 +129,7 @@ public class Run {
 		//c = maxlineCosts
 		for (int c = 42; c < 55; c++)
 		{
-			Instance i = new Instance(path);
+			Instance i = new Instance("athens", path);
 			i.print();
 			i.printToFile();
 

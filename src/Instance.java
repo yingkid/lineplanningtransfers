@@ -10,6 +10,7 @@ public class Instance {
 	private LocalDateTime date = LocalDateTime.now();
 	public String dateTime = date.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 	public String name = "";
+	public String path = "";
 
 	private List<Stop> stops;
 	private List<Edge> edges;
@@ -21,10 +22,11 @@ public class Instance {
 	public List<Cycle> excludedCycles = new ArrayList<Cycle>();
 
 
-	public Instance (String path)
+	public Instance (String name, String path)
 	{
 		System.out.println("Instance path: " + path);
-		this.name = path;
+		this.name = name;
+		this.path = path;
 
 		this.stops = readStops(path + "Stop.giv");
 		this.edges = readEdges(path + "Edge.giv");
@@ -39,10 +41,11 @@ public class Instance {
 		System.out.println("arcs " + arcs.size());
 	}
 	
-	public Instance (String path, List<int[]> lines)
+	public Instance (String name, String path, List<int[]> lines)
 	{
 		System.out.println("Instance path: " + path);
-		this.name = path;
+		this.name = name;
+		this.path = path;
 
 		this.stops = readStops(path + "Stop.giv");
 		this.edges = readEdges(path + "Edge.giv");
@@ -59,7 +62,7 @@ public class Instance {
 
 	public Instance(Generator g)
 	{
-		this.name = g.name;
+		this.path = g.name;
 		this.edges = new ArrayList<Edge>();
 	}
 
@@ -524,8 +527,15 @@ public class Instance {
 	{
 		try 
 		{
+			String dir = "run/" + name + "/";
+			File directory = new File(dir);
+			if (!directory.exists())
+			{
+				directory.mkdir();
+			}
+			
 			PrintStream stdout = System.out;
-			PrintStream stream = new PrintStream("run/" + dateTime + "_instance.txt");
+			PrintStream stream = new PrintStream("run/" + name + "/" + dateTime + "_instance.txt");
 			System.setOut(stream);
 			print();
 			System.setOut(stdout);
