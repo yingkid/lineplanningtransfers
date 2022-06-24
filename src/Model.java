@@ -395,16 +395,20 @@ public class Model {
 		}
 
 		//z-variables
-		List<Arc> transferArcs = new ArrayList<Arc>();
+		HashMap<Arc, Boolean> transferArcs = new LinkedHashMap<Arc, Boolean>();
 		if (Settings.SHORTTRANSFERS)
 		{
 			for (Arc a : i.getArcs())
 			{
 				if (a.type != Arc.Type.TRANSF) continue;
 				int value = (int) Math.round(cplex.getValue(zvars.get(a)));
-				if (value != 0)
+				if (value == 1)
 				{
-					transferArcs.add(a);
+					transferArcs.put(a, true);
+				}
+				else
+				{
+					transferArcs.put(a, false);
 				}
 
 			}

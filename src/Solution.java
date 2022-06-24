@@ -7,7 +7,7 @@ public class Solution {
 	public final HashMap<Line, Boolean> lines;
 	public final HashMap<Line, Integer> frequencies;
 	public final HashMap<Arc, HashMap<Stop, Integer>> arcs;
-	public final List<Arc> transferArcs;
+	public final HashMap<Arc, Boolean> transferArcs;
 	public final List<Cycle> cycles;
 
 	public final int iteration;
@@ -16,7 +16,7 @@ public class Solution {
 	public final int nrFRPLATF;
 	public final int nrTRANSF;
 
-	public Solution(Instance i, HashMap<Line, Boolean> lines, HashMap<Line, Integer> frequencies, HashMap<Arc, HashMap<Stop, Integer>> arcs, List<Arc> transferArcs, 
+	public Solution(Instance i, HashMap<Line, Boolean> lines, HashMap<Line, Integer> frequencies, HashMap<Arc, HashMap<Stop, Integer>> arcs, HashMap<Arc, Boolean> transferArcs, 
 			double objectiveValue, int nrFRPLATF, int nrTRANSF, int iteration, long time)
 	{
 		this.i = i;
@@ -139,11 +139,27 @@ public class Solution {
 		if (Settings.SHORTTRANSFERS)
 		{
 			System.out.println("z decision variables");
-			for (Arc a : transferArcs)
+			for (Map.Entry<Arc, Boolean> transfer : transferArcs.entrySet())
 			{
-				System.out.println(0 + "\t" + a + " oStop=" + a.from.stop.shortName);
+				System.out.println((transfer.getValue() ? 1 : 0) + "\t" + transfer.getKey() + " oStop=" + transfer.getKey().from.stop.shortName);
 			}
 		}
+	}
+	
+	public List<Arc> getTransferArcs()
+	{
+		List<Arc> transfers = new ArrayList<Arc>();
+		if (Settings.SHORTTRANSFERS)
+		{
+			for (Map.Entry<Arc, Boolean> transfer : transferArcs.entrySet())
+			{
+				if (transfer.getValue())
+				{
+					transfers.add(transfer.getKey());
+				}
+			}
+		}
+		return transfers;
 	}
 
 	public void writeSolutionIteration(String...args) 
