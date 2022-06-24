@@ -1,14 +1,16 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
-
-import ilog.concert.IloException;
 
 public class Run {
 
 	enum Experiment {ATHENSREDUCED, GRID, TOY, RANDOM};
 	public Experiment experiment;
 	public Object[] args;
+	public String name;
 	public String path;
 	
 	public Run(Run.Experiment ex, Object...args)
@@ -19,15 +21,19 @@ public class Run {
 		switch (ex)
 		{
 		case ATHENSREDUCED:
+			name = "athens";
 			path = "datasets\\athens\\basisreduced\\";
 			break;
 		case GRID:
+			name = "grid";
 			path = "datasets\\grid\\basis\\";
 			break;
 		case RANDOM:
+			name = "random";
 			path = "";
 			break;
 		case TOY:
+			name = "toy";
 			path = "datasets\\toy\\basis\\";
 			break;
 		default:
@@ -38,6 +44,7 @@ public class Run {
 	
 	public void start()
 	{
+		writeAllSolutions();
 		switch (experiment)
 		{
 		case ATHENSREDUCED:
@@ -71,9 +78,26 @@ public class Run {
 			break;
 		
 		}
+		
+		
 	}
 
-
+	public void writeAllSolutions()
+	{
+		try 
+		{
+			//Write results overall file
+			Writer output;
+			output = new BufferedWriter(new FileWriter("run/" + name + "/all_solutions.txt", true));
+			String join = "----\n";
+			output.append(join);
+			output.close();
+		} 
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 
 
 
@@ -81,7 +105,7 @@ public class Run {
 	{
 		for (int c = 6; c <= 10; c++)
 		{
-			Instance i = new Instance("toy", path);
+			Instance i = new Instance(name, path);
 			i.print();
 			i.printToFile();
 
@@ -116,20 +140,24 @@ public class Run {
 		
 		
 	
-		Instance i = new Instance("grid", path, lines);
-		i.printToFile();
-		i.generateLinePool(lines);
-		i.printLineFile(path);
-		Settings.setMaxLineCosts(7000);
-		Model m = new Model(i);
-		m.solveIteratively();		
+		for (int c = 6; c <= 10; c++)
+		{
+			Instance i = new Instance(name, path, lines);
+			i.printToFile();
+			i.generateLinePool(lines);
+			i.printLineFile(path);
+			Settings.setMaxLineCosts(c*1000);
+			Model m = new Model(i);
+			m.solveIteratively();		
+		}		
+		
 	}
 
 	private void runAthens() {
 		//c = maxlineCosts
 		for (int c = 42; c < 55; c++)
 		{
-			Instance i = new Instance("athens", path);
+			Instance i = new Instance(name, path);
 			i.print();
 			i.printToFile();
 

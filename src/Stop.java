@@ -24,7 +24,7 @@ public class Stop {
 		
 		this.in = new Vertex(this, Vertex.Type.IN);
 		this.out = new Vertex(this, Vertex.Type.OUT);
-		this.lines = new HashMap<Line, Vertex>();
+		this.lines = new LinkedHashMap<Line, Vertex>();
 	}
 	
 	public void addPlatformVertex(Vertex platformVertex)

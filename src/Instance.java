@@ -19,7 +19,6 @@ public class Instance {
 
 	private List<Vertex> vertices;
 	private List<Arc> arcs;
-	public List<Cycle> excludedCycles = new ArrayList<Cycle>();
 
 
 	public Instance (String name, String path)
@@ -521,6 +520,8 @@ public class Instance {
 		{
 			System.out.printf("%4d. %-40s\n", i, arcs.get(i));
 		}
+		int counter = 1;
+
 	}
 
 	public void printToFile()

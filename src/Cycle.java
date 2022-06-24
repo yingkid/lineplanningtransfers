@@ -1,6 +1,5 @@
 import java.util.*;
 
-import ilog.concert.IloRange;
 
 public class Cycle implements Comparable<Cycle> {
 
@@ -9,7 +8,6 @@ public class Cycle implements Comparable<Cycle> {
 	public int transfers;
 	public int length;
 	public int delta;
-	//public IloRange range;
 
 	public Cycle(List<Activity> activities)
 	{

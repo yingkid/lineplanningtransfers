@@ -64,8 +64,8 @@ public class Solution {
 
 			outputStr.add(iteration + "");
 			outputStr.add(objectiveValue + "");
-			outputStr.add(lines.size() + "");
-			outputStr.add(transferArcs.size() + "");
+			outputStr.add(getNSelectedLines() + "");
+			outputStr.add(getNTransferArcs() + "");
 			outputStr.add(cycles.size() + "");
 			outputStr.add(ean.events.size() + "");
 			outputStr.add(ean.activities.size() + "");
@@ -97,6 +97,17 @@ public class Solution {
 			}
 		}
 		return val;
+	}
+	
+	private int getNSelectedLines()
+	{
+		return Collections.frequency(lines.values(), true);
+	}
+	
+	private int getNTransferArcs()
+	{
+		return Collections.frequency(transferArcs.values(), true);
+
 	}
 
 	private void printSolution()

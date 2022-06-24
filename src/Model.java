@@ -13,6 +13,7 @@ public class Model {
 	public HashMap<Arc, IloConstraint> shortTransferConstraints;
 	private IloLinearNumExpr minTravelTime;
 	private IloLinearNumExpr minLineCosts;
+	private List<Cycle> excludedCycles = new ArrayList<Cycle>();
 
 	public Model(Instance i) 
 	{
@@ -226,7 +227,7 @@ public class Model {
 	private void initZconstraints() throws IloException 
 	{
 		this.shortTransferConstraints = new HashMap<Arc, IloConstraint>();
-		if (Settings.SHORTTRANSFERS && !Settings.LAGRANGIANRELAXATION)
+		if (Settings.SHORTTRANSFERS)
 		{
 			System.out.println("initialize z-constraints");
 			for (Arc a : i.getArcs())
@@ -252,7 +253,6 @@ public class Model {
 	{
 		if (cycle != null)
 		{
-			List<Cycle> excludedCycles = i.excludedCycles;
 			IloLinearNumExpr expr = cplex.linearNumExpr();
 			for (Arc a : cycle.getArcs())
 			{
@@ -425,7 +425,7 @@ public class Model {
 			long endTime = System.nanoTime();
 			long duration = endTime - startTime;
 			sol = generateSolution(iteration, duration);
-			//exportModel(iteration);
+			exportModel(iteration);
 		}
 		else
 		{
@@ -573,7 +573,7 @@ public class Model {
 
 	private void exportModel(int iteration) throws IloException
 	{
-		String dirPath = "run/" + i.dateTime + "/";
+		String dirPath = "run/" + i.name + "/" + i.dateTime + "/";
 		File directory = new File(dirPath);
 		if (!directory.exists())
 		{
