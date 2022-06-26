@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
 
 public class Run {
 
-	enum Experiment {ATHENSREDUCED, GRID, TOY, RANDOM};
+	enum Experiment {ATHENSREDUCED, GRID, GRID4, TOY, RANDOM};
 	public Experiment experiment;
 	public Object[] args;
 	public String name;
@@ -27,6 +27,10 @@ public class Run {
 		case GRID:
 			name = "grid";
 			path = "datasets\\grid\\basis\\";
+			break;
+		case GRID4:
+			name = "grid4x4";
+			path = "datasets\\grid4x4\\basis\\";
 			break;
 		case RANDOM:
 			name = "random";
@@ -52,6 +56,9 @@ public class Run {
 			break;
 		case GRID:
 			runGrid();
+			break;
+		case GRID4:
+			runGrid4();
 			break;
 		case RANDOM:
 			if (args.length > 0)
@@ -132,15 +139,48 @@ public class Run {
 //		lines.add(new int[] {101, 102});
 //		lines.add(new int[] {102, 103});
 //		lines.add(new int[] {104, 105});
-		lines.add(new int[] {101, 201, 301, 401, 501});
-		lines.add(new int[] {102, 202, 302, 402, 502});
-		lines.add(new int[] {103, 203, 303, 403, 503});
-		lines.add(new int[] {104, 204, 304, 404, 504});
-		lines.add(new int[] {105, 205, 305, 405, 505});
+//		lines.add(new int[] {101, 201, 301, 401, 501});
+//		lines.add(new int[] {102, 202, 302, 402, 502});
+//		lines.add(new int[] {103, 203, 303, 403, 503});
+//		lines.add(new int[] {104, 204, 304, 404, 504});
+//		lines.add(new int[] {105, 205, 305, 405, 505});
 		
-		
+		int[] stopsToBeRemoved = new int[] {105, 205, 305, 405, 501, 502, 503, 504, 505};
+		Instance i = new Instance(name, path, lines);
+		i.instanceReduction("datasets/grid4x4/basis/", stopsToBeRemoved);;
 	
-		for (int c = 6; c <= 10; c++)
+//		for (int c = 6; c <= 10; c++)
+//		{
+//			Instance i = new Instance(name, path, lines);
+//			i.printToFile();
+//			i.generateLinePool(lines);
+//			i.printLineFile(path);
+//			Settings.setMaxLineCosts(c*1000);
+//			Model m = new Model(i);
+//			m.solveIteratively();		
+//		}		
+		
+	}
+	
+	private void runGrid4() 
+	{
+		List<int[]> lines = new ArrayList<int[]>();
+
+		lines.add(new int[] {101, 102, 103, 104});
+		lines.add(new int[] {201, 202, 203, 204});
+		lines.add(new int[] {301, 302, 303, 304});
+		lines.add(new int[] {401, 402, 403, 404});
+		lines.add(new int[] {101, 102, 202, 203, 303, 304, 404});
+		lines.add(new int[] {101, 201, 202, 302, 303, 403, 404});
+		lines.add(new int[] {401, 301, 302, 303, 203, 204, 104});
+		lines.add(new int[] {401, 402, 302, 303, 304, 204, 104});
+		lines.add(new int[] {101, 201, 301, 401});
+		lines.add(new int[] {102, 202, 302, 402});
+		lines.add(new int[] {103, 203, 303, 403});
+		lines.add(new int[] {104, 204, 304, 404});
+
+
+		for (int c = 5; c <= 8; c++)
 		{
 			Instance i = new Instance(name, path, lines);
 			i.printToFile();

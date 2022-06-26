@@ -5,7 +5,7 @@ public class Settings {
 	
 	public static final Random random = new Random(1);
 	public static final double CPLEXMIPGAP = 1e-7;
-	public static final int BIGM = 100000;
+	public static final int BIGM = 10000;
 	public static final int FASTTRANSFERTIME = 2;
 	public static final int CYCLEPERIOD = 60;
 	public static final int DELTADEVIATION = 3;

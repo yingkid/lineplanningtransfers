@@ -227,7 +227,7 @@ public class Model {
 	private void initZconstraints() throws IloException 
 	{
 		this.shortTransferConstraints = new HashMap<Arc, IloConstraint>();
-		if (Settings.SHORTTRANSFERS)
+		if (Settings.SHORTTRANSFERS && !Settings.LAGRANGIANRELAXATION)
 		{
 			System.out.println("initialize z-constraints");
 			for (Arc a : i.getArcs())
@@ -425,7 +425,7 @@ public class Model {
 			long endTime = System.nanoTime();
 			long duration = endTime - startTime;
 			sol = generateSolution(iteration, duration);
-			exportModel(iteration);
+			//exportModel(iteration);
 		}
 		else
 		{

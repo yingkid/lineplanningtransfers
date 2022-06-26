@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.util.stream.IntStream;
 
 public class Solution {
 	public final Instance i;
@@ -114,7 +115,7 @@ public class Solution {
 	{
 		System.out.println("objective value from cplex " + this.objectiveValue);
 		System.out.println("Solution obj: " + this.getObjectiveValue());
-
+		//System.out.println("Transfer arcs valid?:" + this.checkTransferSolution(this.getTransferArcs()));
 		System.out.println("x decision variables");
 		for (Line l : i.getLines())
 		{
@@ -173,6 +174,44 @@ public class Solution {
 		}
 		return transfers;
 	}
+	
+	public void fixSolution()
+	{
+		HashMap<Arc, Boolean> fixedTransferArcs = new LinkedHashMap<Arc, Boolean>(this.transferArcs);
+
+		HashMap<Cycle, Integer> costs = new LinkedHashMap<Cycle, Integer>();
+		for (Cycle c : cycles)
+		{	
+			Arc aMin = null;
+			int min = Integer.MAX_VALUE;
+			for (Arc a : c.arcs)
+			{	
+				int total = arcs.get(a).values().stream().mapToInt(Integer::intValue).sum();
+				if (total < min)
+				{
+					min = total;
+					aMin = a;
+				}
+			}
+		}
+
+	}
+	
+//	private boolean checkTransferSolution(List<Arc> transfers)
+//	{
+//		for (Cycle c : cycles)
+//		{
+//			int i = 0;
+//			for(Arc a : c.arcs)
+//			{
+//				if (transfers.contains(a)) i++;
+//					
+//			}
+//			if (i == c.arcs.size()) return false;
+//		}
+//		return true;
+//	}
+	
 
 	public void writeSolutionIteration(String...args) 
 	{

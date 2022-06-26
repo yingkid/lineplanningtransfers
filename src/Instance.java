@@ -35,11 +35,11 @@ public class Instance {
 		setFrequencies();
 		this.vertices = createVertices();
 		this.arcs = createArcs();
-		
+
 		System.out.println("vertices " + vertices.size());
 		System.out.println("arcs " + arcs.size());
 	}
-	
+
 	public Instance (String name, String path, List<int[]> lines)
 	{
 		System.out.println("Instance path: " + path);
@@ -109,14 +109,14 @@ public class Instance {
 	{
 		//checks for transfer stations
 		List<Vertex> vertices = new ArrayList<Vertex>();
-		
+
 		//create in and out vertices for each stop
 		for (Stop s : stops)
 		{
 			vertices.add(s.in);
 			vertices.add(s.out);
 		}
-		
+
 		//create station-line vertices
 		for (Line l : lines)
 		{
@@ -130,7 +130,7 @@ public class Instance {
 				}
 			}
 		}
-		
+
 		//create platform vertex
 		for (Stop s : stops)
 		{
@@ -175,9 +175,9 @@ public class Instance {
 					}
 			}
 		}
-		
 
-		
+
+
 		return Collections.unmodifiableList(vertices);
 	}
 	private List<Arc> createArcs()
@@ -425,17 +425,17 @@ public class Instance {
 		{
 			if (s.id == id) return s;
 		}
-		System.err.println("cannot find " + id);
+		System.err.println("cannot find stop " + id);
 		return null;
 	}
-	
+
 	private Stop findStopByShortString(int id)
 	{
 		for (Stop s : stops)
 		{
 			if (s.shortName.equals(Integer.toString(id))) return s;
 		}
-		System.err.println("cannot find " + id);
+		System.err.println("cannot find stop by string " + id);
 		return null;
 	}
 
@@ -451,12 +451,26 @@ public class Instance {
 
 	private Vertex findVertex(Stop stop, Line line)
 	{
-		System.out.println("findVertex" + stop + "" + line);
 		for (Vertex v : vertices)
 		{
 			if (v.line == line && v.stop == stop)
 			{
 				return v;
+			}
+		}
+		return null;
+	}
+
+	public Arc findArc(Stop s, int f)
+	{
+		for (Arc a : s.platform.getArcsOut())
+		{
+			if (a.type == Arc.Type.FRPLAT)
+			{
+				if (a.freq == f)
+				{
+					return a;
+				}
 			}
 		}
 		return null;
@@ -534,7 +548,7 @@ public class Instance {
 			{
 				directory.mkdir();
 			}
-			
+
 			PrintStream stdout = System.out;
 			PrintStream stream = new PrintStream("run/" + name + "/" + dateTime + "_instance.txt");
 			System.setOut(stream);
@@ -619,7 +633,7 @@ public class Instance {
 			int[] array = linesWithStops.get(i);
 			for (int j = 0; j < array.length; j++)
 			{
-				
+
 				stops.add(findStopByShortString(array[j]));
 			}
 			l.addStops(stops);
@@ -657,5 +671,109 @@ public class Instance {
 		{
 
 		}
+	}
+
+	public void instanceReduction(String path, int[] stopIDs)
+	{
+		List<Stop> stopsToRemove = new ArrayList<Stop>();
+		for (int i = 0; i < stopIDs.length; i++)
+		{
+			Stop s = findStopByShortString(stopIDs[i]);
+			stopsToRemove.add(s);
+		}
+
+		List<Stop> reducedStops = new ArrayList<Stop>(stops);
+		List<Edge> reducedEdges = new ArrayList<Edge>();
+		List<OD> reducedOD = new ArrayList<OD>();
+
+		reducedStops.removeAll(stopsToRemove);
+		for (Edge e : edges)
+		{
+			if (stopsToRemove.contains(e.leftStop)) continue;
+			if (stopsToRemove.contains(e.rightStop)) continue;
+			reducedEdges.add(e);
+		}
+
+		for (OD pair : pairs)
+		{
+			if (stopsToRemove.contains(pair.origin)) continue;
+			if (stopsToRemove.contains(pair.destination)) continue;
+			reducedOD.add(pair);
+		}
+
+
+		try 
+		{
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "Stop.giv"));
+			bw.write("# stop-id; short-name; long-name; x-coord; y-coord\n");
+			for (Stop s : reducedStops)
+			{
+				bw.write(String.join(";", s.id + "", s.shortName, s.longName, s.x + "", s.y + "\n"));
+			}
+			bw.close();
+		}
+		catch (IOException e) 
+		{
+			System.out.print(e.getMessage());
+		}
+
+		try 
+		{
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "Edge.giv"));
+			bw.write("# edge-id; left-stop-id; right-stop-id;  length;  lower-bound; upper-bound\n");
+			for (Edge e : reducedEdges)
+			{
+				bw.write(String.join(";", 
+						e.id + "", 
+						e.leftStop.id + "", 
+						e.rightStop.id + "", 
+						e.length + "", 
+						e.minTraveltime  + "", 
+						e.maxTraveltime + "\n"));
+			}
+			bw.close();
+		}
+		catch (IOException e) 
+		{
+			System.out.print(e.getMessage());
+		}
+
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "Load.giv"));
+			bw.write("# link_index; load; minimal_frequency; maximal_frequency\n");
+			for (Edge e : reducedEdges)
+			{
+				bw.write(String.join(";", 
+						e.id + "", 
+						e.load + "", 
+						e.minFreq + "", 
+						e.maxFreq + "\n"));
+			}
+			bw.close();
+		}
+		catch (IOException e) 
+		{
+			System.out.print(e.getMessage());
+		}
+
+		try 
+		{
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "OD.giv"));
+			for (OD od : reducedOD)
+			{
+				bw.write(String.join(";", 
+						od.origin.id + "", 
+						od.destination.id + "", 
+						od.count + "\n"));
+
+			}
+			bw.close();
+		}
+		catch (IOException e) 
+		{
+			System.out.print(e.getMessage());
+		}
+
+
 	}
 }
