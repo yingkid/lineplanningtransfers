@@ -475,6 +475,16 @@ public class Instance {
 		}
 		return null;
 	}
+	
+	public int getTotalPassengers()
+	{
+		int passengers = 0;
+		for (OD pair : pairs)
+		{
+			passengers += pair.count;
+		}
+		return passengers;
+	}
 
 	public void print()
 	{
@@ -490,7 +500,6 @@ public class Instance {
 			System.out.println("\t" + e);
 		}
 		System.out.println("pairs (" + pairs.size() + ")=");
-		int totalDemand = 0;
 		List<String> shortNames = new ArrayList<String>();
 		for (Stop s : stops)
 		{
@@ -500,13 +509,12 @@ public class Instance {
 			{
 				int demand = getDemand(s, s2);
 				str.add(String.format("%3d",demand));
-				totalDemand += demand;
 			}
 			String join = String.join(", ", str);
 			System.out.printf("%3s. demand: %-20s\n", s.shortName, join);
 		}
 		System.out.println("destination: " + String.join(", ", shortNames));
-		System.out.println("total passengers= " + totalDemand);
+		System.out.println("total passengers= " + getTotalPassengers());
 
 		System.out.println("lines (" + lines.size() + ")=");
 		for (int i = 0; i < lines.size(); i++)
@@ -613,15 +621,6 @@ public class Instance {
 		return 0;
 	}
 
-	public int getTotalDemand()
-	{
-		int demand = 0;
-		for (OD od : pairs)
-		{
-			demand += od.count;
-		}
-		return demand;
-	}
 
 	public List<Line> generateLinePool(List<int[]> linesWithStops)
 	{

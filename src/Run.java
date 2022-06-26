@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
 
 public class Run {
 
-	enum Experiment {ATHENSREDUCED, GRID, GRID4, TOY, RANDOM};
+	enum Experiment {ATHENSREDUCED, GRID, GRID4, TOY, RANDOM, TEST};
 	public Experiment experiment;
 	public Object[] args;
 	public String name;
@@ -39,6 +39,10 @@ public class Run {
 		case TOY:
 			name = "toy";
 			path = "datasets\\toy\\basis\\";
+			break;
+		case TEST:
+			name = "test";
+			path = "datasets\\grid\\basis\\";
 			break;
 		default:
 			break;
@@ -80,6 +84,9 @@ public class Run {
 			break;
 		case TOY:
 			runToy();
+			break;
+		case TEST:
+			runTest();
 			break;
 		default:
 			break;
@@ -145,20 +152,18 @@ public class Run {
 //		lines.add(new int[] {104, 204, 304, 404, 504});
 //		lines.add(new int[] {105, 205, 305, 405, 505});
 		
-		int[] stopsToBeRemoved = new int[] {105, 205, 305, 405, 501, 502, 503, 504, 505};
-		Instance i = new Instance(name, path, lines);
-		i.instanceReduction("datasets/grid4x4/basis/", stopsToBeRemoved);;
+
 	
-//		for (int c = 6; c <= 10; c++)
-//		{
-//			Instance i = new Instance(name, path, lines);
-//			i.printToFile();
-//			i.generateLinePool(lines);
-//			i.printLineFile(path);
-//			Settings.setMaxLineCosts(c*1000);
-//			Model m = new Model(i);
-//			m.solveIteratively();		
-//		}		
+		for (int c = 6; c <= 10; c++)
+		{
+			Instance i = new Instance(name, path, lines);
+			i.printToFile();
+			i.generateLinePool(lines);
+			i.printLineFile(path);
+			Settings.setMaxLineCosts(c*1000);
+			Model m = new Model(i);
+			m.solveIteratively();		
+		}		
 		
 	}
 	
@@ -180,7 +185,7 @@ public class Run {
 		lines.add(new int[] {104, 204, 304, 404});
 
 
-		for (int c = 5; c <= 8; c++)
+		for (int c = 9; c <= 12; c++)
 		{
 			Instance i = new Instance(name, path, lines);
 			i.printToFile();
@@ -208,6 +213,41 @@ public class Run {
 		
 	}
 
+	
+	private void runTest() 
+	{
+		List<int[]> lines = new ArrayList<int[]>();
+
+		lines.add(new int[] {101, 102, 103, 104, 105});
+		lines.add(new int[] {201, 202, 203, 204, 205});
+		lines.add(new int[] {301, 302, 303, 304, 305});
+		lines.add(new int[] {401, 402, 403, 404, 405});
+		lines.add(new int[] {501, 502, 503, 504, 505});
+		lines.add(new int[] {101, 102, 202, 203, 303, 304, 404, 405, 505});
+		lines.add(new int[] {101, 201, 202, 302, 303, 403, 404, 504, 505});
+		lines.add(new int[] {501, 401, 402, 302, 303, 203, 204, 104, 105});
+		lines.add(new int[] {501, 502, 402, 403, 303, 304, 204, 205, 105});
+		lines.add(new int[] {101, 102});
+		lines.add(new int[] {102, 103});
+		lines.add(new int[] {104, 105});
+		lines.add(new int[] {101, 201, 301, 401, 501});
+		lines.add(new int[] {102, 202, 302, 402, 502});
+		lines.add(new int[] {103, 203, 303, 403, 503});
+		lines.add(new int[] {104, 204, 304, 404, 504});
+		lines.add(new int[] {105, 205, 305, 405, 505});
+		
+		for (int c = 6; c <= 10; c++)
+		{
+			Instance i = new Instance(name, path, lines);
+			i.printToFile();
+			i.generateLinePool(lines);
+			Settings.setMaxLineCosts(c*1000);
+			Model m = new Model(i);
+			m.solveIteratively();		
+		}		
+		
+	}
+	
 	public void runRandom(int nr)
 	{
 		System.out.println("Random experiment" + nr);

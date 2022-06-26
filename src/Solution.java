@@ -286,7 +286,7 @@ public class Solution {
 			outputStr.add(nrFRPLATF + "");
 			outputStr.add(nrTRANSF + "");
 			outputStr.add(Settings.MAXLINECOSTS +"");
-			outputStr.add(Math.round(objectiveValue/i.getTotalDemand()) + "");
+			outputStr.add(Math.round(objectiveValue/i.getTotalPassengers()) + "");
 
 
 			outputStr.add((double) Math.round(time/1e9 * 100) / 100 + "");

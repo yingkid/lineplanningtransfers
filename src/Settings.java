@@ -5,7 +5,7 @@ public class Settings {
 	
 	public static final Random random = new Random(1);
 	public static final double CPLEXMIPGAP = 1e-7;
-	public static final int BIGM = 10000;
+	
 	public static final int FASTTRANSFERTIME = 2;
 	public static final int CYCLEPERIOD = 60;
 	public static final int DELTADEVIATION = 3;
@@ -19,12 +19,21 @@ public class Settings {
 	public static final int LONGTRANSFERCOSTSFACTOR = 1;
 	public static final boolean LAGRANGIANRELAXATION = false;
 	public static int MAXLINECOSTS = 45;
+	public static int BIGM = 10000;
 	
 	public static void setMaxLineCosts(int val)
 	{
 		MAXLINECOSTS = val;
 	}
 	
+	
+	
+	public static void setBIGM(int bIGM) {
+		BIGM = bIGM;
+	}
+
+
+
 	public static String values() 
 	{
 		try
