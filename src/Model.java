@@ -28,11 +28,15 @@ public class Model {
 		{
 			System.out.println(e);
 		}
-
+		i.printToFile();
 	}
 
 	private void initVariables() throws IloException
 	{
+		//big-m for yvars and transfer big-M round up to 1000
+		Double BIGM = Math.ceil((double) i.getTotalPassengers()/1000)*1000;
+		Settings.setBIGM(BIGM.intValue());
+		
 		System.out.println("initVariables");
 		cplex = new IloCplex();
 		//cplex.setOut(null);
@@ -84,10 +88,7 @@ public class Model {
 			}
 		}
 		
-		//big-m for yvars and transfer big-M
-		Double BIGM = Math.ceil(i.getTotalPassengers()/1000)*1000;
-		
-		Settings.setBIGM(BIGM.intValue());
+
 	}
 
 	private void initConstraints() throws IloException

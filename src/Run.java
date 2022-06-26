@@ -121,7 +121,6 @@ public class Run {
 		{
 			Instance i = new Instance(name, path);
 			i.print();
-			i.printToFile();
 
 
 			Settings.setMaxLineCosts(c*1000);
@@ -156,13 +155,20 @@ public class Run {
 	
 		for (int c = 6; c <= 10; c++)
 		{
+			System.out.println("c = " + c);
 			Instance i = new Instance(name, path, lines);
-			i.printToFile();
 			i.generateLinePool(lines);
 			i.printLineFile(path);
 			Settings.setMaxLineCosts(c*1000);
 			Model m = new Model(i);
-			m.solveIteratively();		
+			m.solveIteratively();
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}		
 		
 	}
@@ -188,7 +194,6 @@ public class Run {
 		for (int c = 9; c <= 12; c++)
 		{
 			Instance i = new Instance(name, path, lines);
-			i.printToFile();
 			i.generateLinePool(lines);
 			i.printLineFile(path);
 			Settings.setMaxLineCosts(c*1000);
@@ -204,7 +209,6 @@ public class Run {
 		{
 			Instance i = new Instance(name, path);
 			i.print();
-			i.printToFile();
 
 			Settings.setMaxLineCosts(c);
 			Model m = new Model(i);
@@ -239,7 +243,6 @@ public class Run {
 		for (int c = 6; c <= 10; c++)
 		{
 			Instance i = new Instance(name, path, lines);
-			i.printToFile();
 			i.generateLinePool(lines);
 			Settings.setMaxLineCosts(c*1000);
 			Model m = new Model(i);
@@ -357,7 +360,6 @@ public class Run {
 		Generator g = new Generator("exp_" + nr, lines);
 		Instance i = g.getInstance();
 		i.print();
-		i.printToFile();
 		Model m = new Model(i);
 		m.solveIteratively();
 	}

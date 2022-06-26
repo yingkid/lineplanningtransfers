@@ -19,7 +19,7 @@ public class Settings {
 	public static final int LONGTRANSFERCOSTSFACTOR = 1;
 	public static final boolean LAGRANGIANRELAXATION = false;
 	public static int MAXLINECOSTS = 45;
-	public static int BIGM = 10000;
+	public static int BIGM = 0;
 	
 	public static void setMaxLineCosts(int val)
 	{
