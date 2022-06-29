@@ -9,7 +9,7 @@ public class Settings {
 	public static final int FASTTRANSFERTIME = 2;
 	public static final int CYCLEPERIOD = 60;
 	public static final int DELTADEVIATION = 3;
-	public static final int LINECAPACITY = 1000;
+	public static final int LINECAPACITY = 100;
 	
 	
 	public static final boolean INCLUDETOTALLINECOSTS = true;

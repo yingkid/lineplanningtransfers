@@ -1,4 +1,5 @@
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -25,11 +26,11 @@ public class Run {
 			path = "datasets\\athens\\basisreduced\\";
 			break;
 		case GRID:
-			name = "grid";
+			name = "grid5v4d";
 			path = "datasets\\grid\\basis\\";
 			break;
 		case GRID4:
-			name = "grid4x4";
+			name = "grid4x44v4d";
 			path = "datasets\\grid4x4\\basis\\";
 			break;
 		case RANDOM:
@@ -42,7 +43,7 @@ public class Run {
 			break;
 		case TEST:
 			name = "test";
-			path = "datasets\\grid\\basis\\";
+			
 			break;
 		default:
 			break;
@@ -100,10 +101,33 @@ public class Run {
 	{
 		try 
 		{
+			String path = "run/" + name + "/";
+			File directory = new File(path);
+			if (!directory.exists())
+			{
+				directory.mkdir();
+			}
 			//Write results overall file
 			Writer output;
-			output = new BufferedWriter(new FileWriter("run/" + name + "/all_solutions.txt", true));
-			String join = "----\n";
+			output = new BufferedWriter(new FileWriter(path + "all_solutions.txt", true));
+			List<String> outputStr = new ArrayList<String>();
+			outputStr.add("date");
+			outputStr.add("name");
+			outputStr.add("objectiveValue");
+			outputStr.add("minTravelTime");
+			outputStr.add("minLineCosts");
+			outputStr.add("iteration");
+			outputStr.add("#selectedLines");
+			outputStr.add("#transferArcs");
+			outputStr.add("#cycles");
+			outputStr.add("#events");
+			outputStr.add("#activities");
+			outputStr.add("#nrFRPLATF");
+			outputStr.add("#nrTOPLATF");
+			outputStr.add("MAXLINECOSTS");
+			outputStr.add("time");
+
+			String join = String.join(", ", outputStr) + "\n";
 			output.append(join);
 			output.close();
 		} 
@@ -133,27 +157,24 @@ public class Run {
 	{
 		List<int[]> lines = new ArrayList<int[]>();
 
-		lines.add(new int[] {101, 102, 103, 104, 105});
-		lines.add(new int[] {201, 202, 203, 204, 205});
-		lines.add(new int[] {301, 302, 303, 304, 305});
-		lines.add(new int[] {401, 402, 403, 404, 405});
-		lines.add(new int[] {501, 502, 503, 504, 505});
+//		lines.add(new int[] {101, 102, 103, 104, 105});
+//		lines.add(new int[] {201, 202, 203, 204, 205});
+//		lines.add(new int[] {301, 302, 303, 304, 305});
+//		lines.add(new int[] {401, 402, 403, 404, 405});
+//		lines.add(new int[] {501, 502, 503, 504, 505});
 		lines.add(new int[] {101, 102, 202, 203, 303, 304, 404, 405, 505});
 		lines.add(new int[] {101, 201, 202, 302, 303, 403, 404, 504, 505});
 		lines.add(new int[] {501, 401, 402, 302, 303, 203, 204, 104, 105});
 		lines.add(new int[] {501, 502, 402, 403, 303, 304, 204, 205, 105});
-//		lines.add(new int[] {101, 102});
-//		lines.add(new int[] {102, 103});
-//		lines.add(new int[] {104, 105});
-//		lines.add(new int[] {101, 201, 301, 401, 501});
-//		lines.add(new int[] {102, 202, 302, 402, 502});
-//		lines.add(new int[] {103, 203, 303, 403, 503});
-//		lines.add(new int[] {104, 204, 304, 404, 504});
-//		lines.add(new int[] {105, 205, 305, 405, 505});
+		lines.add(new int[] {101, 201, 301, 401, 501});
+		lines.add(new int[] {102, 202, 302, 402, 502});
+		lines.add(new int[] {103, 203, 303, 403, 503});
+		lines.add(new int[] {104, 204, 304, 404, 504});
+		lines.add(new int[] {105, 205, 305, 405, 505});
 		
 
 	
-		for (int c = 6; c <= 10; c++)
+		for (int c = 5; c <= 10; c++)
 		{
 			System.out.println("c = " + c);
 			Instance i = new Instance(name, path, lines);
@@ -163,7 +184,7 @@ public class Run {
 			Model m = new Model(i);
 			m.solveIteratively();
 			try {
-				Thread.sleep(10000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -177,10 +198,10 @@ public class Run {
 	{
 		List<int[]> lines = new ArrayList<int[]>();
 
-		lines.add(new int[] {101, 102, 103, 104});
-		lines.add(new int[] {201, 202, 203, 204});
-		lines.add(new int[] {301, 302, 303, 304});
-		lines.add(new int[] {401, 402, 403, 404});
+//		lines.add(new int[] {101, 102, 103, 104});
+//		lines.add(new int[] {201, 202, 203, 204});
+//		lines.add(new int[] {301, 302, 303, 304});
+//		lines.add(new int[] {401, 402, 403, 404});
 		lines.add(new int[] {101, 102, 202, 203, 303, 304, 404});
 		lines.add(new int[] {101, 201, 202, 302, 303, 403, 404});
 		lines.add(new int[] {401, 301, 302, 303, 203, 204, 104});
@@ -191,7 +212,7 @@ public class Run {
 		lines.add(new int[] {104, 204, 304, 404});
 
 
-		for (int c = 9; c <= 12; c++)
+		for (int c = 6; c <= 8; c++)
 		{
 			Instance i = new Instance(name, path, lines);
 			i.generateLinePool(lines);
@@ -220,25 +241,21 @@ public class Run {
 	
 	private void runTest() 
 	{
+		path = "datasets\\grid4x4\\basis\\";
 		List<int[]> lines = new ArrayList<int[]>();
 
-		lines.add(new int[] {101, 102, 103, 104, 105});
-		lines.add(new int[] {201, 202, 203, 204, 205});
-		lines.add(new int[] {301, 302, 303, 304, 305});
-		lines.add(new int[] {401, 402, 403, 404, 405});
-		lines.add(new int[] {501, 502, 503, 504, 505});
-		lines.add(new int[] {101, 102, 202, 203, 303, 304, 404, 405, 505});
-		lines.add(new int[] {101, 201, 202, 302, 303, 403, 404, 504, 505});
-		lines.add(new int[] {501, 401, 402, 302, 303, 203, 204, 104, 105});
-		lines.add(new int[] {501, 502, 402, 403, 303, 304, 204, 205, 105});
-		lines.add(new int[] {101, 102});
-		lines.add(new int[] {102, 103});
-		lines.add(new int[] {104, 105});
-		lines.add(new int[] {101, 201, 301, 401, 501});
-		lines.add(new int[] {102, 202, 302, 402, 502});
-		lines.add(new int[] {103, 203, 303, 403, 503});
-		lines.add(new int[] {104, 204, 304, 404, 504});
-		lines.add(new int[] {105, 205, 305, 405, 505});
+		lines.add(new int[] {101, 102, 103, 104});
+		lines.add(new int[] {201, 202, 203, 204});
+		lines.add(new int[] {301, 302, 303, 304});
+		lines.add(new int[] {401, 402, 403, 404});
+		lines.add(new int[] {101, 102, 202, 203, 303, 304, 404});
+		lines.add(new int[] {101, 201, 202, 302, 303, 403, 404});
+		lines.add(new int[] {401, 301, 302, 303, 203, 204, 104});
+		lines.add(new int[] {401, 402, 302, 303, 304, 204, 104});
+		lines.add(new int[] {101, 201, 301, 401});
+		lines.add(new int[] {102, 202, 302, 402});
+		lines.add(new int[] {103, 203, 303, 403});
+		lines.add(new int[] {104, 204, 304, 404});
 		
 		for (int c = 6; c <= 10; c++)
 		{
@@ -246,7 +263,7 @@ public class Run {
 			i.generateLinePool(lines);
 			Settings.setMaxLineCosts(c*1000);
 			Model m = new Model(i);
-			m.solveIteratively();		
+			m.solveIterativelyRelaxed();		
 		}		
 		
 	}

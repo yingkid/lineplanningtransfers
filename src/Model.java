@@ -36,11 +36,12 @@ public class Model {
 		//big-m for yvars and transfer big-M round up to 1000
 		Double BIGM = Math.ceil((double) i.getTotalPassengers()/1000)*1000;
 		Settings.setBIGM(BIGM.intValue());
-		
+
 		System.out.println("initVariables");
 		cplex = new IloCplex();
 		//cplex.setOut(null);
 		cplex.setParam(IloCplex.Param.MIP.Tolerances.MIPGap	, Settings.CPLEXMIPGAP);
+
 
 		xvars = new HashMap<Line,HashMap<Integer, IloIntVar>>();
 		yvars = new HashMap<Arc, HashMap<Stop, IloNumVar>>();
@@ -87,7 +88,7 @@ public class Model {
 				zvars.put(a, zvar);
 			}
 		}
-		
+
 
 	}
 
@@ -169,69 +170,67 @@ public class Model {
 			}
 		}
 
-		if (!Settings.LAGRANGIANRELAXATION) {
 
 
-			//constraint 3.10
-			System.out.println("y-constraints capacity 3.10");
-			for (Line l : i.getLines())
+		//constraint 3.10
+		System.out.println("y-constraints capacity 3.10");
+		for (Line l : i.getLines())
+		{
+			for (Arc a : i.getArcs())
 			{
-				for (Arc a : i.getArcs())
+				if (a.type == Arc.Type.TRAVEL && a.line == l)
 				{
-					if (a.type == Arc.Type.TRAVEL && a.line == l)
-					{
 
+					IloLinearNumExpr exprLeft = cplex.linearNumExpr();
+					IloLinearNumExpr exprRight = cplex.linearNumExpr();
+					for (Stop o : i.getStops())
+					{
+						exprLeft.addTerm(1, yvars.get(a).get(o));
+					}
+
+					for (Entry<Integer, IloIntVar> lf : xvars.get(l).entrySet())
+					{
+						exprRight.addTerm(l.capacity * lf.getKey(), lf.getValue());
+					}
+					IloConstraint constr = cplex.addLe(exprLeft, exprRight);	
+					constr.setName(a + " " + l);
+					//constraints.add(constr);
+				}
+			}
+		}
+		//constraint 3.11
+		System.out.println("y-constraints capacity 3.11");
+
+		//System.out.println(counter++ + " "  + a);
+		for (Line l : i.getLines())
+		{
+			for (Map.Entry<Integer, IloIntVar> x : xvars.get(l).entrySet())
+			{
+				List<Arc> arcsLine = new ArrayList<Arc>();
+				arcsLine.addAll(l.backwardArcs);
+				arcsLine.addAll(l.forwardArcs);
+				for (Arc a : arcsLine)
+				{
+					if (a.type == Arc.Type.FRPLAT)
+					{
 						IloLinearNumExpr exprLeft = cplex.linearNumExpr();
 						IloLinearNumExpr exprRight = cplex.linearNumExpr();
-						for (Stop o : i.getStops())
+						for (Stop origin : i.getStops())
 						{
-							exprLeft.addTerm(1, yvars.get(a).get(o));
+							if (x.getKey() == a.freq)
+							{
+								exprLeft.addTerm(1, yvars.get(a).get(origin));
+							}
 						}
-
-						for (Entry<Integer, IloIntVar> lf : xvars.get(l).entrySet())
-						{
-							exprRight.addTerm(l.capacity * lf.getKey(), lf.getValue());
-						}
-						IloConstraint constr = cplex.addLe(exprLeft, exprRight);	
-						constr.setName(a + " " + l);
+						exprRight.addTerm(l.capacity, x.getValue());
+						IloConstraint constr = cplex.addLe(exprLeft, exprRight);
+						//System.out.println(constr.toString());
+						//constr.setName("3.11");
 						//constraints.add(constr);
 					}
 				}
 			}
-			//constraint 3.11
-			System.out.println("y-constraints capacity 3.11");
-
-			//System.out.println(counter++ + " "  + a);
-			for (Line l : i.getLines())
-			{
-				for (Map.Entry<Integer, IloIntVar> x : xvars.get(l).entrySet())
-				{
-					List<Arc> arcsLine = new ArrayList<Arc>();
-					arcsLine.addAll(l.backwardArcs);
-					arcsLine.addAll(l.forwardArcs);
-					for (Arc a : arcsLine)
-					{
-						if (a.type == Arc.Type.FRPLAT)
-						{
-							IloLinearNumExpr exprLeft = cplex.linearNumExpr();
-							IloLinearNumExpr exprRight = cplex.linearNumExpr();
-							for (Stop origin : i.getStops())
-							{
-								if (x.getKey() == a.freq)
-								{
-									exprLeft.addTerm(1, yvars.get(a).get(origin));
-								}
-							}
-							exprRight.addTerm(l.capacity, x.getValue());
-							IloConstraint constr = cplex.addLe(exprLeft, exprRight);
-							//System.out.println(constr.toString());
-							//constr.setName("3.11");
-							//constraints.add(constr);
-						}
-					}
-				}
-			}
-		}
+		} 
 	}
 
 	private void initZconstraints() throws IloException 
@@ -299,12 +298,12 @@ public class Model {
 					{
 						minTravelTime.addTerm(1, y);
 					}
-					
+
 					minTravelTime.addTerm(-Settings.BIGM, zvars.get(a));
 				}
 			}
-			
-			
+
+
 			for (Line l : i.getLines())
 			{
 				for (Arc a : i.getArcs())
@@ -413,7 +412,7 @@ public class Model {
 		return 0;
 	}
 
-	public Solution generateSolution(int iteration, long duration) throws IloException
+	public Solution generateSolution(int iteration, long itDuration, long duration) throws IloException
 	{
 		//x-variables
 		HashMap<Line, Boolean> lines = new LinkedHashMap<Line, Boolean>();
@@ -421,7 +420,6 @@ public class Model {
 		outerloop:
 			for (Line l : i.getLines())
 			{
-				System.out.println(l);
 				for (Entry<Integer, IloIntVar> entry : xvars.get(l).entrySet())
 				{
 					int value = (int) Math.round(cplex.getValue(entry.getValue()));
@@ -482,18 +480,22 @@ public class Model {
 
 			}
 		}
-		return new Solution(i, lines, frequencies, arcs, transferArcs, cplex.getObjValue(), nrFRPLATF, nrTRANSF, iteration, duration);
+		double minTT = this.getMinTravelTimeObj();
+		double minLC = this.getMinLineCostsObj();
+		return new Solution(i, lines, frequencies, arcs, transferArcs, cplex.getObjValue(), minTT, minLC, nrFRPLATF, nrTRANSF, iteration, itDuration, duration);
 	}
 
-	public Solution solve(int iteration, long startTime) throws IloException
+	public Solution solve(int iteration, long initTime) throws IloException
 	{
 		System.out.println("solving...");
 		Solution sol = null;
+		long startTime = System.nanoTime();
 		if (cplex.solve())
 		{
 			long endTime = System.nanoTime();
-			long duration = endTime - startTime;
-			sol = generateSolution(iteration, duration);
+			long duration = endTime - initTime; //since init
+			long itDuration = endTime - startTime; //duration iteration
+			sol = generateSolution(iteration, itDuration, duration);
 			//exportModel(iteration);
 		}
 		else
@@ -503,6 +505,31 @@ public class Model {
 		return sol;
 	}
 
+	public Solution solveRelaxed(int iteration, long initTime) throws IloException
+	{
+		System.out.println("solving...");
+		Solution sol = null;
+		for (IloNumVar a : zvars.values())
+		{
+
+			cplex.add(cplex.conversion(a, IloNumVarType.Float));
+		}
+		long startTime = System.nanoTime();
+		if (cplex.solve())
+		{
+
+			long endTime = System.nanoTime();
+			long duration = endTime - initTime; //since init
+			long itDuration = endTime - startTime; //duration iteration
+			sol = generateSolution(iteration, itDuration, duration);
+			exportModel(iteration);
+		}
+		else
+		{
+			System.err.println(cplex.getStatus());
+		}
+		return sol;
+	}
 
 	public List<Solution> solveIteratively()
 	{
@@ -510,8 +537,6 @@ public class Model {
 		List<Solution> solutions = new ArrayList<Solution>();
 		try
 		{
-
-
 			int it = 1;
 			long startTime = System.nanoTime();
 			Solution sol = solve(it, startTime);
@@ -558,6 +583,61 @@ public class Model {
 
 		return solutions;
 	}
+
+	public List<Solution> solveIterativelyRelaxed()
+	{
+		System.out.println("Solve iteratively");
+		List<Solution> solutions = new ArrayList<Solution>();
+		try
+		{
+			int it = 1;
+			long startTime = System.nanoTime();
+			Solution sol = solveRelaxed(it, startTime);
+			solutions.add(sol);
+
+			if (sol != null)
+			{
+				List<Cycle> cycles = new ArrayList<Cycle>();
+				Cycle z = cycleCheck(sol);
+				cycles.add(z);
+				sol.addCycles(cycles);
+				sol.writeSummary();
+				sol.writeSolutionIteration();
+
+				while (z != null)
+				{
+					it++;
+					initZexcludedArcs(z);
+					sol = solve(it, startTime);
+					z = cycleCheck(sol);
+					cycles.add(z);
+					sol.addCycles(cycles);
+					sol.writeSummary();
+					sol.writeSolutionIteration();
+				}
+				sol.writeFinalSolution();
+			}
+			else
+			{
+				System.err.println("No solution");
+			}
+
+
+			//isFeasible(solutions.get(solutions.size()-1));
+
+
+			cplex.close();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+
+		return solutions;
+	}
+
+
 
 	private boolean isFeasible(Solution sol)
 	{

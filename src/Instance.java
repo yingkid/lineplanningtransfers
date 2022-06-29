@@ -51,8 +51,7 @@ public class Instance {
 		this.lines = generateLinePool(lines);
 		readLoad(path + "Load.giv");
 		this.pairs = readODpairs(path + "OD.giv");
-		setFrequencies();
-		this.vertices = createVertices();
+													this.vertices = createVertices();
 		this.arcs = createArcs();
 
 		System.out.println("vertices " + vertices.size());

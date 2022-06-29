@@ -5,6 +5,8 @@ import java.util.stream.IntStream;
 public class Solution {
 	public final Instance i;
 	public final long objectiveValue;
+	public final double minTravelTime;
+	public final double minLineCosts;
 	public final HashMap<Line, Boolean> lines;
 	public final HashMap<Line, Integer> frequencies;
 	public final HashMap<Arc, HashMap<Stop, Integer>> arcs;
@@ -12,13 +14,14 @@ public class Solution {
 	public final List<Cycle> cycles;
 
 	public final int iteration;
-	public final long time;
+	public final long itDuration;
+	public final long duration;
 	public EAN ean;
 	public final int nrFRPLATF;
 	public final int nrTRANSF;
 
 	public Solution(Instance i, HashMap<Line, Boolean> lines, HashMap<Line, Integer> frequencies, HashMap<Arc, HashMap<Stop, Integer>> arcs, HashMap<Arc, Boolean> transferArcs, 
-			double objectiveValue, int nrFRPLATF, int nrTRANSF, int iteration, long time)
+			double objectiveValue, double minTravelTime, double minLineCosts, int nrFRPLATF, int nrTRANSF, int iteration, long itDuration, long duration)
 	{
 		this.i = i;
 		this.lines = lines;
@@ -27,9 +30,12 @@ public class Solution {
 		this.transferArcs = transferArcs;
 		this.cycles = new ArrayList<Cycle>();
 		this.objectiveValue = Math.round(objectiveValue);
+		this.minTravelTime = minTravelTime;
+		this.minLineCosts = minLineCosts;
 
 		this.iteration = iteration;
-		this.time = time;
+		this.itDuration = itDuration;
+		this.duration = duration;
 		this.nrFRPLATF = nrFRPLATF;
 		this.nrTRANSF = nrTRANSF;
 	}
@@ -56,7 +62,8 @@ public class Solution {
 				outputStr.add("#activities");
 				outputStr.add("#shortTransfers");
 				outputStr.add("#fastTransfers");
-				outputStr.add("time");
+				outputStr.add("itDuration");
+				outputStr.add("cumDuration");
 
 				String join = String.join(", ", outputStr) + "\n";
 				output.append(join);
@@ -73,8 +80,8 @@ public class Solution {
 			outputStr.add(nrFRPLATF + "");
 			outputStr.add(nrTRANSF + "");
 
-
-			outputStr.add((double) Math.round(time/1e9 * 100) / 100 + "");
+			outputStr.add((double) Math.round(itDuration/1e9 * 100) / 100 + "");
+			outputStr.add((double) Math.round(duration/1e9 * 100) / 100 + "");
 
 			String join = String.join(", ", outputStr) + "\n";
 			output.append(join);
@@ -271,25 +278,20 @@ public class Solution {
 			output = new BufferedWriter(new FileWriter("run/" + i.name + "/all_solutions.txt", true));
 			List<String> outputStr = new ArrayList<String>();
 			outputStr.add(i.dateTime + "");
-			outputStr.add(i.path + "");
+			outputStr.add(i.name + "");
 			outputStr.add(objectiveValue + "");
+			outputStr.add(Math.round(minTravelTime) + "");
+			outputStr.add(Math.round(minLineCosts) + "");
 			outputStr.add(iteration + "");
-			outputStr.add(i.getStops().size() + "");
-			outputStr.add(i.getEdges().size() + "");
-			outputStr.add(i.getLines().size() + "");
-			outputStr.add(i.getPairs().size() + "");
-			outputStr.add(i.getVertices().size() + "");
-			outputStr.add(i.getArcs().size() + "");
+			outputStr.add(this.getNSelectedLines() + "");
+			outputStr.add(this.getNTransferArcs() + "");
 			outputStr.add(cycles.size() + "");
 			outputStr.add(ean.events.size() + "");
 			outputStr.add(ean.activities.size() + "");
 			outputStr.add(nrFRPLATF + "");
 			outputStr.add(nrTRANSF + "");
 			outputStr.add(Settings.MAXLINECOSTS +"");
-			outputStr.add(Math.round(objectiveValue/i.getTotalPassengers()) + "");
-
-
-			outputStr.add((double) Math.round(time/1e9 * 100) / 100 + "");
+			outputStr.add((double) Math.round(duration/1e9 * 100) / 100 + "");
 
 			String join = String.join(", ", outputStr) + "\n";
 			output.append(join);
