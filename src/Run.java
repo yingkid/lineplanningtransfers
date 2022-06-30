@@ -26,7 +26,7 @@ public class Run {
 			path = "datasets\\athens\\basisreduced\\";
 			break;
 		case GRID:
-			name = "grid5v4d";
+			name = "grid5h5v4d";
 			path = "datasets\\grid\\basis\\";
 			break;
 		case GRID4:
@@ -157,11 +157,11 @@ public class Run {
 	{
 		List<int[]> lines = new ArrayList<int[]>();
 
-//		lines.add(new int[] {101, 102, 103, 104, 105});
-//		lines.add(new int[] {201, 202, 203, 204, 205});
-//		lines.add(new int[] {301, 302, 303, 304, 305});
-//		lines.add(new int[] {401, 402, 403, 404, 405});
-//		lines.add(new int[] {501, 502, 503, 504, 505});
+		lines.add(new int[] {101, 102, 103, 104, 105});
+		lines.add(new int[] {201, 202, 203, 204, 205});
+		lines.add(new int[] {301, 302, 303, 304, 305});
+		lines.add(new int[] {401, 402, 403, 404, 405});
+		lines.add(new int[] {501, 502, 503, 504, 505});
 		lines.add(new int[] {101, 102, 202, 203, 303, 304, 404, 405, 505});
 		lines.add(new int[] {101, 201, 202, 302, 303, 403, 404, 504, 505});
 		lines.add(new int[] {501, 401, 402, 302, 303, 203, 204, 104, 105});
@@ -174,7 +174,7 @@ public class Run {
 		
 
 	
-		for (int c = 5; c <= 10; c++)
+		for (int c = 9; c <= 14; c++)
 		{
 			System.out.println("c = " + c);
 			Instance i = new Instance(name, path, lines);
@@ -263,7 +263,6 @@ public class Run {
 			i.generateLinePool(lines);
 			Settings.setMaxLineCosts(c*1000);
 			Model m = new Model(i);
-			m.solveIterativelyRelaxed();		
 		}		
 		
 	}

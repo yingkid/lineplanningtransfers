@@ -258,18 +258,22 @@ public class Model {
 		}
 	}
 
-	private void initZexcludedArcs(Cycle cycle) throws IloException
+	private void initZexcludedArcs(List<Cycle> cycles) throws IloException
 	{
-		if (cycle != null)
+		if (cycles != null)
 		{
-			IloLinearNumExpr expr = cplex.linearNumExpr();
-			for (Arc a : cycle.getArcs())
+			for (Cycle cycle : cycles)
 			{
-				expr.addTerm(1, zvars.get(a));
+				IloLinearNumExpr expr = cplex.linearNumExpr();
+				for (Arc a : cycle.getArcs())
+				{
+					expr.addTerm(1, zvars.get(a));
+				}
+				IloRange r = cplex.addLe(expr, cycle.getArcs().size() - 1);
+				r.setName("cycle");
+				excludedCycles.add(cycle);
 			}
-			IloRange r = cplex.addLe(expr, cycle.getArcs().size() - 1);
-			r.setName("cycle");
-			excludedCycles.add(cycle);
+			
 		}
 	}
 
@@ -542,22 +546,23 @@ public class Model {
 			Solution sol = solve(it, startTime);
 			solutions.add(sol);
 
+			
 			if (sol != null)
 			{
 				List<Cycle> cycles = new ArrayList<Cycle>();
-				Cycle z = cycleCheck(sol);
-				cycles.add(z);
+				List<Cycle> z = cyclesCheck(sol);
+				cycles.addAll(z);
 				sol.addCycles(cycles);
 				sol.writeSummary();
 				sol.writeSolutionIteration();
 
-				while (z != null)
+				while (!z.isEmpty())
 				{
 					it++;
 					initZexcludedArcs(z);
 					sol = solve(it, startTime);
-					z = cycleCheck(sol);
-					cycles.add(z);
+					z = cyclesCheck(sol);
+					cycles.addAll(z);
 					sol.addCycles(cycles);
 					sol.writeSummary();
 					sol.writeSolutionIteration();
@@ -584,58 +589,7 @@ public class Model {
 		return solutions;
 	}
 
-	public List<Solution> solveIterativelyRelaxed()
-	{
-		System.out.println("Solve iteratively");
-		List<Solution> solutions = new ArrayList<Solution>();
-		try
-		{
-			int it = 1;
-			long startTime = System.nanoTime();
-			Solution sol = solveRelaxed(it, startTime);
-			solutions.add(sol);
-
-			if (sol != null)
-			{
-				List<Cycle> cycles = new ArrayList<Cycle>();
-				Cycle z = cycleCheck(sol);
-				cycles.add(z);
-				sol.addCycles(cycles);
-				sol.writeSummary();
-				sol.writeSolutionIteration();
-
-				while (z != null)
-				{
-					it++;
-					initZexcludedArcs(z);
-					sol = solve(it, startTime);
-					z = cycleCheck(sol);
-					cycles.add(z);
-					sol.addCycles(cycles);
-					sol.writeSummary();
-					sol.writeSolutionIteration();
-				}
-				sol.writeFinalSolution();
-			}
-			else
-			{
-				System.err.println("No solution");
-			}
-
-
-			//isFeasible(solutions.get(solutions.size()-1));
-
-
-			cplex.close();
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-
-
-		return solutions;
-	}
+	
 
 
 
@@ -805,6 +759,72 @@ public class Model {
 
 			return cycle_family.get(cycle_family.size() - 1);
 		}
+	}
+	private List<Cycle> cyclesCheck(Solution sol) 
+	{
+		EAN network = new EAN(sol, i);
+		List<Cycle> cycles = new ArrayList<Cycle>();
+
+		for (Stop transferStation : network.transferStations)
+		{
+			for (Event e : network.events)
+			{
+				if (e.stop == transferStation && e.type == Event.Type.DEP)
+				{
+					ShortestPath sp = new ShortestPath(network);
+					int[] dist = sp.Dijkstra(e);
+					//int min_length = Integer.MAX_VALUE;
+					Cycle cycle_candidate = null;
+
+					for (Event e2 : network.events)
+					{
+						if (e2.type == Event.Type.ARR)
+						{
+							if (e2.hasNextEvent(e))
+							{
+								int idx = network.events.indexOf(e2);
+								if (dist[idx] >= 0 && dist[idx] < Integer.MAX_VALUE) //consider only feasible paths
+								{
+									int length = dist[idx] + e2.getOutActivity(e).value;
+									int cp = Settings.CYCLEPERIOD;
+									int remainder = length % cp;
+									int delta = cp / 2 - Math.abs(cp / 2 - remainder);									
+										if (delta > Settings.DELTADEVIATION)
+										{
+											Cycle cycle = sp.getCycle(e, e2);
+											cycle.setDelta(delta);
+											cycle.setLength(length);
+											if (cycle.transfers > 2)
+											{
+												cycle_candidate = cycle;
+											}
+										}			
+								}
+							}
+						}
+					}
+					if (cycle_candidate != null)
+					{
+						if (!alreadyExists(cycles, cycle_candidate))
+						{
+							cycles.add(cycle_candidate);
+						}
+					}
+				}
+
+			}
+		}
+
+		return cycles;
+	}
+	
+	private boolean alreadyExists(List<Cycle> cycles, Cycle o)
+	{
+		for (Cycle c : cycles)
+		{
+			if (new HashSet<>(c.arcs).equals(new HashSet<>(o.arcs))) return true;
+		}
+		return false;
 	}
 }
 
