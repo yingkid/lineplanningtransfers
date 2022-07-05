@@ -26,11 +26,11 @@ public class Run {
 			path = "datasets\\athens\\basisreduced\\";
 			break;
 		case GRID:
-			name = "grid5h5v4d";
+			name = "grid";
 			path = "datasets\\grid\\basis\\";
 			break;
 		case GRID4:
-			name = "grid4x44v4d";
+			name = "grid4x4";
 			path = "datasets\\grid4x4\\basis\\";
 			break;
 		case RANDOM:
@@ -53,16 +53,32 @@ public class Run {
 	
 	public void start()
 	{
-		writeAllSolutions();
+
 		switch (experiment)
 		{
 		case ATHENSREDUCED:
 			runAthens();
 			break;
 		case GRID:
+			name = "grid_8z_f" + Settings.MAXFREQUENCY;
 			runGrid();
+//			name = "grid_5h5v_f" + Settings.MAXFREQUENCY;
+//			runGrid();
+//			name = "grid_5h4d_f" + Settings.MAXFREQUENCY;
+//			runGrid();
+//			name = "grid_5v4d_f" + Settings.MAXFREQUENCY;
+//			runGrid();
+//			name = "grid_5h5v4d_f" + Settings.MAXFREQUENCY ;
+//			runGrid();
 			break;
 		case GRID4:
+			name = "grid4_4h4v_f" + Settings.MAXFREQUENCY;
+			runGrid4();
+			name = "grid4_4h4d_f" + Settings.MAXFREQUENCY;
+			runGrid4();
+			name = "grid4_4v4d_f" + Settings.MAXFREQUENCY;
+			runGrid4();
+			name = "grid4_4h4v4d_f" + Settings.MAXFREQUENCY;
 			runGrid4();
 			break;
 		case RANDOM:
@@ -119,6 +135,7 @@ public class Run {
 			outputStr.add("iteration");
 			outputStr.add("#selectedLines");
 			outputStr.add("#transferArcs");
+			outputStr.add("#transferArcsUsed");
 			outputStr.add("#cycles");
 			outputStr.add("#events");
 			outputStr.add("#activities");
@@ -155,32 +172,105 @@ public class Run {
 
 	private void runGrid() 
 	{
+		writeAllSolutions();
+
+		List<Integer> lIds = new ArrayList<Integer>();
 		List<int[]> lines = new ArrayList<int[]>();
 
-		lines.add(new int[] {101, 102, 103, 104, 105});
-		lines.add(new int[] {201, 202, 203, 204, 205});
-		lines.add(new int[] {301, 302, 303, 304, 305});
-		lines.add(new int[] {401, 402, 403, 404, 405});
-		lines.add(new int[] {501, 502, 503, 504, 505});
-		lines.add(new int[] {101, 102, 202, 203, 303, 304, 404, 405, 505});
-		lines.add(new int[] {101, 201, 202, 302, 303, 403, 404, 504, 505});
-		lines.add(new int[] {501, 401, 402, 302, 303, 203, 204, 104, 105});
-		lines.add(new int[] {501, 502, 402, 403, 303, 304, 204, 205, 105});
-		lines.add(new int[] {101, 201, 301, 401, 501});
-		lines.add(new int[] {102, 202, 302, 402, 502});
-		lines.add(new int[] {103, 203, 303, 403, 503});
-		lines.add(new int[] {104, 204, 304, 404, 504});
-		lines.add(new int[] {105, 205, 305, 405, 505});
-		
+		if (name.contains("5h"))
+		{
+			lines.add(new int[] {101, 102, 103, 104, 105});
+			lines.add(new int[] {201, 202, 203, 204, 205});
+			lines.add(new int[] {301, 302, 303, 304, 305});
+			lines.add(new int[] {401, 402, 403, 404, 405});
+			lines.add(new int[] {501, 502, 503, 504, 505});
+			lIds.add(1);
+			lIds.add(2);
+			lIds.add(3);
+			lIds.add(4);
+			lIds.add(5);
+		}
 
+		if (name.contains("5v"))
+		{
+			lines.add(new int[] {101, 201, 301, 401, 501});
+			lines.add(new int[] {102, 202, 302, 402, 502});
+			lines.add(new int[] {103, 203, 303, 403, 503});
+			lines.add(new int[] {104, 204, 304, 404, 504});
+			lines.add(new int[] {105, 205, 305, 405, 505});
+			lIds.add(6);
+			lIds.add(7);
+			lIds.add(8);
+			lIds.add(9);
+			lIds.add(10);
+		}
+
+		if (name.contains("4d"))
+		{
+			lines.add(new int[] {201, 202, 203, 303, 403, 404, 405});
+			lines.add(new int[] {102, 202, 302, 303, 304, 404, 504});
+			lines.add(new int[] {401, 402, 403, 303, 203, 204, 205});
+			lines.add(new int[] {502, 402, 302, 303, 304, 204, 104});
+			lIds.add(11);
+			lIds.add(12);
+			lIds.add(13);
+			lIds.add(14);
+		}
+		
+		if (name.contains("8l"))
+		{
+			lines.add(new int[] {101, 102, 103, 104, 105, 205, 305, 405, 505});
+			lines.add(new int[] {201, 202, 203, 204, 205, 305, 405, 505});
+			lines.add(new int[] {301, 302, 303, 304, 305, 405, 505});
+			lines.add(new int[] {401, 402, 403, 404, 405, 505});
+			lines.add(new int[] {101, 201, 202, 203, 204, 205});
+			lines.add(new int[] {101, 201, 301, 302, 303, 304, 305});
+			lines.add(new int[] {101, 201, 301, 401, 402, 403, 404, 405});
+			lines.add(new int[] {101, 201, 301, 401, 501, 502, 503, 504, 505});
+			lIds.add(15);
+			lIds.add(16);
+			lIds.add(17);
+			lIds.add(18);
+			lIds.add(19);
+			lIds.add(20);
+			lIds.add(21);
+			lIds.add(22);
+		}
+		
+		if (name.contains("8z"))
+		{
+			lines.add(new int[] {101, 102, 103, 203, 303, 403, 503, 504, 505});
+			lines.add(new int[] {201, 202, 203, 303, 403, 404, 405});
+			lines.add(new int[] {401, 402, 403, 303, 203, 204, 205});
+			lines.add(new int[] {501, 502, 503, 403, 303, 203, 103, 104, 105});
+			lines.add(new int[] {101, 201, 301, 302, 303, 304, 305, 405, 505});
+			lines.add(new int[] {102, 202, 302, 303, 304, 404, 405});
+			lines.add(new int[] {104, 204, 304, 303, 302, 402, 502});
+			lines.add(new int[] {501, 401, 301, 302, 303, 304, 305, 205, 105});
+			lIds.add(23);
+			lIds.add(24);
+			lIds.add(25);
+			lIds.add(26);
+			lIds.add(27);
+			lIds.add(28);
+			lIds.add(29);
+			lIds.add(30);
+		}
+		
+		List<int[]> incompatibles = new ArrayList<int[]>();
+//		incompatibles.add(new int[] {2, 11, 13});
+//		incompatibles.add(new int[] {4, 11, 13});
+//		incompatibles.add(new int[] {7, 12, 14});
+//		incompatibles.add(new int[] {9, 12, 14});
+		
 	
-		for (int c = 9; c <= 14; c++)
+		for (int c = 5; c <= lines.size(); c++)
 		{
 			System.out.println("c = " + c);
-			Instance i = new Instance(name, path, lines);
+			Instance i = new Instance(name, path, lIds, lines, incompatibles);
 			i.generateLinePool(lines);
 			i.printLineFile(path);
-			Settings.setMaxLineCosts(c*1000);
+			Settings.setMaxLineCosts(c*10);
 			Model m = new Model(i);
 			m.solveIteratively();
 			try {
@@ -194,30 +284,75 @@ public class Run {
 		
 	}
 	
+	public List<int[]> incompatibilityCheck(List<int[]> lIds, List<int[]> incs)
+	{
+		List<int[]> newIncs = new ArrayList<int[]>();
+		outerloop:
+		for (int[] inc : incs)
+		{
+			for (int i = 0; i < inc.length; i++)
+			{
+				if (!lIds.contains(inc[i]))
+				{
+					continue outerloop;
+				}
+			}
+			newIncs.add(inc);
+		}
+		return newIncs;
+	}
+	
 	private void runGrid4() 
 	{
+		writeAllSolutions();
+
+		List<Integer> lIds = new ArrayList<Integer>();
 		List<int[]> lines = new ArrayList<int[]>();
 
-//		lines.add(new int[] {101, 102, 103, 104});
-//		lines.add(new int[] {201, 202, 203, 204});
-//		lines.add(new int[] {301, 302, 303, 304});
-//		lines.add(new int[] {401, 402, 403, 404});
-		lines.add(new int[] {101, 102, 202, 203, 303, 304, 404});
-		lines.add(new int[] {101, 201, 202, 302, 303, 403, 404});
-		lines.add(new int[] {401, 301, 302, 303, 203, 204, 104});
-		lines.add(new int[] {401, 402, 302, 303, 304, 204, 104});
-		lines.add(new int[] {101, 201, 301, 401});
-		lines.add(new int[] {102, 202, 302, 402});
-		lines.add(new int[] {103, 203, 303, 403});
-		lines.add(new int[] {104, 204, 304, 404});
-
-
-		for (int c = 6; c <= 8; c++)
+		if (name.contains("4h"))
 		{
-			Instance i = new Instance(name, path, lines);
+			lines.add(new int[] {101, 102, 103, 104});
+			lines.add(new int[] {201, 202, 203, 204});
+			lines.add(new int[] {301, 302, 303, 304});
+			lines.add(new int[] {401, 402, 403, 404});
+			lIds.add(1);
+			lIds.add(2);
+			lIds.add(3);
+			lIds.add(4);
+		}
+
+		if (name.contains("4v"))
+		{
+			lines.add(new int[] {101, 201, 301, 401});
+			lines.add(new int[] {102, 202, 302, 402});
+			lines.add(new int[] {103, 203, 303, 403});
+			lines.add(new int[] {104, 204, 304, 404});
+			lIds.add(5);
+			lIds.add(6);
+			lIds.add(7);
+			lIds.add(8);
+		}
+		
+		if (name.contains("4d"))
+		{
+			lines.add(new int[] {101, 102, 202, 203, 303, 304, 404});
+			lines.add(new int[] {101, 201, 202, 302, 303, 403, 404});
+			lines.add(new int[] {401, 301, 302, 303, 203, 204, 104});
+			lines.add(new int[] {401, 402, 302, 303, 304, 204, 104});
+			lIds.add(9);
+			lIds.add(10);
+			lIds.add(11);
+			lIds.add(12);
+		}
+		
+		List<int[]> incompatibles = new ArrayList<int[]>();
+
+		for (int c = 5; c <= lines.size(); c++)
+		{
+			Instance i = new Instance(name, path, lIds, lines, incompatibles);
 			i.generateLinePool(lines);
 			i.printLineFile(path);
-			Settings.setMaxLineCosts(c*1000);
+			Settings.setMaxLineCosts(c*10);
 			Model m = new Model(i);
 			m.solveIteratively();		
 		}		
@@ -226,6 +361,8 @@ public class Run {
 
 	private void runAthens() {
 		//c = maxlineCosts
+		
+		writeAllSolutions();
 		for (int c = 42; c < 55; c++)
 		{
 			Instance i = new Instance(name, path);
@@ -242,28 +379,7 @@ public class Run {
 	private void runTest() 
 	{
 		path = "datasets\\grid4x4\\basis\\";
-		List<int[]> lines = new ArrayList<int[]>();
-
-		lines.add(new int[] {101, 102, 103, 104});
-		lines.add(new int[] {201, 202, 203, 204});
-		lines.add(new int[] {301, 302, 303, 304});
-		lines.add(new int[] {401, 402, 403, 404});
-		lines.add(new int[] {101, 102, 202, 203, 303, 304, 404});
-		lines.add(new int[] {101, 201, 202, 302, 303, 403, 404});
-		lines.add(new int[] {401, 301, 302, 303, 203, 204, 104});
-		lines.add(new int[] {401, 402, 302, 303, 304, 204, 104});
-		lines.add(new int[] {101, 201, 301, 401});
-		lines.add(new int[] {102, 202, 302, 402});
-		lines.add(new int[] {103, 203, 303, 403});
-		lines.add(new int[] {104, 204, 304, 404});
-		
-		for (int c = 6; c <= 10; c++)
-		{
-			Instance i = new Instance(name, path, lines);
-			i.generateLinePool(lines);
-			Settings.setMaxLineCosts(c*1000);
-			Model m = new Model(i);
-		}		
+	
 		
 	}
 	

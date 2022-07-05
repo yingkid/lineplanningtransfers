@@ -12,6 +12,7 @@ public class Stop {
 	public Vertex platform;
 	public final HashMap<Line, Vertex> lines;
 	public final List<Vertex> vertices;
+	public int demandFromThisOrigin;
 	
 	public Stop(int id, String shortName, String longName, double x, double y) {
 		super();

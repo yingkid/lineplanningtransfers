@@ -18,6 +18,8 @@ public class Settings {
 	public static final boolean MINLINECOSTS = false;
 	public static final int LONGTRANSFERCOSTSFACTOR = 1;
 	public static final boolean LAGRANGIANRELAXATION = false;
+	public static final int LINECOSTS = 10;
+	public static final int MAXFREQUENCY = 4;
 	public static int MAXLINECOSTS = 45;
 	public static int BIGM = 0;
 	

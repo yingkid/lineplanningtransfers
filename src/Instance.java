@@ -16,6 +16,9 @@ public class Instance {
 	private List<Edge> edges;
 	private List<OD> pairs;
 	private List<Line> lines;
+	private List<List<Line>> incompatibleLines;
+
+
 
 	private List<Vertex> vertices;
 	private List<Arc> arcs;
@@ -31,7 +34,9 @@ public class Instance {
 		this.edges = readEdges(path + "Edge.giv");
 		this.lines = readLines(path + "Pool.giv", path + "Pool-Cost.giv");
 		readLoad(path + "Load.giv");
+		this.incompatibleLines = new ArrayList<List<Line>>();
 		this.pairs = readODpairs(path + "OD.giv");
+		setStopFromDemand();
 		setFrequencies();
 		this.vertices = createVertices();
 		this.arcs = createArcs();
@@ -40,7 +45,7 @@ public class Instance {
 		System.out.println("arcs " + arcs.size());
 	}
 
-	public Instance (String name, String path, List<int[]> lines)
+	public Instance (String name, String path, List<Integer> lIds, List<int[]> lines, List<int[]> incompatibles)
 	{
 		System.out.println("Instance path: " + path);
 		this.name = name;
@@ -48,10 +53,13 @@ public class Instance {
 
 		this.stops = readStops(path + "Stop.giv");
 		this.edges = readEdges(path + "Edge.giv");
-		this.lines = generateLinePool(lines);
+		this.lines = generateLinePool(lIds, lines);
+		this.incompatibleLines = convertToLineList(incompatibles);
 		readLoad(path + "Load.giv");
 		this.pairs = readODpairs(path + "OD.giv");
-													this.vertices = createVertices();
+		setStopFromDemand();
+	
+		this.vertices = createVertices();
 		this.arcs = createArcs();
 
 		System.out.println("vertices " + vertices.size());
@@ -94,6 +102,10 @@ public class Instance {
 
 	public List<Arc> getArcs() {
 		return arcs;
+	}
+	
+	public List<List<Line>> getIncompatibleLines() {
+		return incompatibleLines;
 	}
 
 	private void setFrequencies()
@@ -407,6 +419,19 @@ public class Instance {
 			return null;
 		}
 	}
+	
+	private void setStopFromDemand()
+	{
+		for (Stop source : stops)
+		{
+			int demand = 0;
+			for (Stop sink : stops)
+			{
+				demand += getDemand(source, sink);
+			}
+			source.demandFromThisOrigin = demand;
+		}
+	}
 
 	private Line findLine(List<Line> lines, int id)
 	{
@@ -638,8 +663,32 @@ public class Instance {
 			l.addEdge(this);
 			lines.add(l);
 			l.minFreq = 1;
-			l.maxFreq = 4;
-			l.costs = 1000;
+			l.maxFreq = Settings.MAXFREQUENCY;
+			l.costs = Settings.LINECOSTS;
+		}
+		return lines;
+	}
+	
+	public List<Line> generateLinePool(List<Integer> IDs, List<int[]> linesWithStops)
+	{
+		List<Line> lines = new ArrayList<Line>();
+		for (int i = 0; i < linesWithStops.size(); i++)
+		{
+			int id = IDs.get(i);
+			Line l = new Line(id);
+			List<Stop> stops = new ArrayList<Stop>();
+			int[] array = linesWithStops.get(i);
+			for (int j = 0; j < array.length; j++)
+			{
+
+				stops.add(findStopByShortString(array[j]));
+			}
+			l.addStops(stops);
+			l.addEdge(this);
+			lines.add(l);
+			l.minFreq = 1;
+			l.maxFreq = Settings.MAXFREQUENCY;
+			l.costs = Settings.LINECOSTS;
 		}
 		return lines;
 	}
@@ -773,5 +822,20 @@ public class Instance {
 		}
 
 
+	}
+	
+	private List<List<Line>> convertToLineList(List<int[]> incompatibles)
+	{
+		List<List<Line>> listLines = new ArrayList<List<Line>>();
+		
+		for(int[] inc : incompatibles)
+		{
+			List<Line> incLines = new ArrayList<Line>();
+			for (int i = 0; i < inc.length; i++)
+			{
+				incLines.add(this.findLine(lines, inc[i]));
+			}
+		}
+		return listLines;
 	}
 }

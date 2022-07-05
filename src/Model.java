@@ -34,7 +34,7 @@ public class Model {
 	private void initVariables() throws IloException
 	{
 		//big-m for yvars and transfer big-M round up to 1000
-		Double BIGM = Math.ceil((double) i.getTotalPassengers()/1000)*1000;
+		Double BIGM = Math.ceil((double) i.getTotalPassengers()/100)*100;
 		Settings.setBIGM(BIGM.intValue());
 
 		System.out.println("initVariables");
@@ -63,12 +63,13 @@ public class Model {
 
 		//y-variables
 		System.out.println("initialize y-variables");
+		
 		for (Arc a : i.getArcs())
 		{
 			HashMap<Stop, IloNumVar> yvar = new HashMap<Stop, IloNumVar>();
 			for (Stop s : i.getStops())
-			{
-				IloNumVar y = cplex.numVar(0, Settings.BIGM);
+			{		
+				IloNumVar y = cplex.numVar(0, s.demandFromThisOrigin);
 				y.setName("oS" + s.id + "_" + a.type);
 				yvar.put(s, y);					
 			}
@@ -127,6 +128,21 @@ public class Model {
 			}
 			cplex.addLe(expr, Settings.MAXLINECOSTS);
 
+		}
+
+		for (List<Line> list : i.getIncompatibleLines())
+		{
+			IloLinearNumExpr expr = cplex.linearNumExpr();
+
+			for (Line line : list)
+			{
+				for (Map.Entry<Integer, IloIntVar> x : xvars.get(line).entrySet())
+				{
+					expr.addTerm(1, x.getValue());
+				}
+
+				cplex.addLe(expr, list.size() - 1);
+			}
 		}
 
 	}
@@ -273,7 +289,7 @@ public class Model {
 				r.setName("cycle");
 				excludedCycles.add(cycle);
 			}
-			
+
 		}
 	}
 
@@ -546,7 +562,7 @@ public class Model {
 			Solution sol = solve(it, startTime);
 			solutions.add(sol);
 
-			
+
 			if (sol != null)
 			{
 				List<Cycle> cycles = new ArrayList<Cycle>();
@@ -589,7 +605,7 @@ public class Model {
 		return solutions;
 	}
 
-	
+
 
 
 
@@ -789,16 +805,16 @@ public class Model {
 									int cp = Settings.CYCLEPERIOD;
 									int remainder = length % cp;
 									int delta = cp / 2 - Math.abs(cp / 2 - remainder);									
-										if (delta > Settings.DELTADEVIATION)
+									if (delta > Settings.DELTADEVIATION)
+									{
+										Cycle cycle = sp.getCycle(e, e2);
+										cycle.setDelta(delta);
+										cycle.setLength(length);
+										if (cycle.transfers > 2)
 										{
-											Cycle cycle = sp.getCycle(e, e2);
-											cycle.setDelta(delta);
-											cycle.setLength(length);
-											if (cycle.transfers > 2)
-											{
-												cycle_candidate = cycle;
-											}
-										}			
+											cycle_candidate = cycle;
+										}
+									}			
 								}
 							}
 						}
@@ -817,12 +833,12 @@ public class Model {
 
 		return cycles;
 	}
-	
+
 	private boolean alreadyExists(List<Cycle> cycles, Cycle o)
 	{
 		for (Cycle c : cycles)
 		{
-			if (new HashSet<>(c.arcs).equals(new HashSet<>(o.arcs))) return true;
+			if (new HashSet<>(c.activities).equals(new HashSet<>(o.activities))) return true;
 		}
 		return false;
 	}

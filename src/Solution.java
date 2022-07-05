@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.IntStream;
 
 public class Solution {
@@ -57,6 +58,7 @@ public class Solution {
 				outputStr.add("objectiveValue");
 				outputStr.add("#lines selected");
 				outputStr.add("#transferArcs");
+				outputStr.add("#transferArcsUsed");
 				outputStr.add("#cycles");
 				outputStr.add("#events");
 				outputStr.add("#activities");
@@ -74,6 +76,7 @@ public class Solution {
 			outputStr.add(objectiveValue + "");
 			outputStr.add(getNSelectedLines() + "");
 			outputStr.add(getNTransferArcs() + "");
+			outputStr.add(getNTransferArcsUsed() + "");
 			outputStr.add(cycles.size() + "");
 			outputStr.add(ean.events.size() + "");
 			outputStr.add(ean.activities.size() + "");
@@ -115,6 +118,29 @@ public class Solution {
 	private int getNTransferArcs()
 	{
 		return Collections.frequency(transferArcs.values(), true);
+
+	}
+	
+	private int getNTransferArcsUsed()
+	{
+		int counter = 0;
+		for (Entry<Arc, Boolean> a : transferArcs.entrySet())
+		{
+			if (a.getValue())
+			{
+				int transfersOnThisArc = 0;
+				for (Integer i : this.arcs.get(a.getKey()).values())
+				{
+					transfersOnThisArc += i;
+				}
+				if (transfersOnThisArc > 0)
+				{
+					counter++;
+				}
+			}
+			
+		}
+		return counter;
 
 	}
 
@@ -281,10 +307,11 @@ public class Solution {
 			outputStr.add(i.name + "");
 			outputStr.add(objectiveValue + "");
 			outputStr.add(Math.round(minTravelTime) + "");
-			outputStr.add(Math.round(minLineCosts) + "");
+			outputStr.add((minLineCosts) + "");
 			outputStr.add(iteration + "");
 			outputStr.add(this.getNSelectedLines() + "");
 			outputStr.add(this.getNTransferArcs() + "");
+			outputStr.add(this.getNTransferArcsUsed() + "");
 			outputStr.add(cycles.size() + "");
 			outputStr.add(ean.events.size() + "");
 			outputStr.add(ean.activities.size() + "");
