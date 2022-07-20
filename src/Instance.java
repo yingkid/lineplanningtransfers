@@ -6,6 +6,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
+/**
+ * @author ying_
+ *
+ */
 public class Instance {
 	private LocalDateTime date = LocalDateTime.now();
 	public String dateTime = date.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
@@ -24,6 +28,10 @@ public class Instance {
 	private List<Arc> arcs;
 
 
+	/** create instance for the problem
+	 * @param name name of the instance
+	 * @param path path of the instance at the computer
+	 */
 	public Instance (String name, String path)
 	{
 		System.out.println("Instance path: " + path);
@@ -45,6 +53,13 @@ public class Instance {
 		System.out.println("arcs " + arcs.size());
 	}
 
+	/** create instance for the problem with given incompatibilities
+	 * @param name
+	 * @param path
+	 * @param lIds
+	 * @param lines
+	 * @param incompatibles
+	 */
 	public Instance (String name, String path, List<Integer> lIds, List<int[]> lines, List<int[]> incompatibles)
 	{
 		System.out.println("Instance path: " + path);
@@ -116,6 +131,10 @@ public class Instance {
 		}
 	}
 
+	
+	/** create vertices in the flow formulation
+	 * @return list of vertices
+	 */
 	private List<Vertex> createVertices()
 	{
 		//checks for transfer stations
@@ -191,6 +210,9 @@ public class Instance {
 
 		return Collections.unmodifiableList(vertices);
 	}
+	/** create arcs for the flow formulation
+	 * @return list of arcs
+	 */
 	private List<Arc> createArcs()
 	{
 		List<Arc> arcs = new ArrayList<Arc>();
@@ -210,8 +232,8 @@ public class Instance {
 
 				Vertex left = this.findVertex(s1, l);
 				Vertex right = this.findVertex(s2, l);
-				Arc leftToRight = new Arc(left, right, Arc.Type.TRAVEL, e.maxTraveltime, l);
-				Arc rightToLeft = new Arc(right, left, Arc.Type.TRAVEL, e.maxTraveltime, l);
+				Arc leftToRight = new Arc(left, right, Arc.Type.TRAVEL, e.maxTraveltime, l, Arc.Direction.FORWARD);
+				Arc rightToLeft = new Arc(right, left, Arc.Type.TRAVEL, e.maxTraveltime, l, Arc.Direction.BACKWARD);
 				arcs.add(leftToRight);
 				arcs.add(rightToLeft);
 				//arcs.add(leftToRight);
@@ -274,6 +296,10 @@ public class Instance {
 		return arcs;
 	}
 
+	/** read edges from dataset from given file
+	 * @param path of file
+	 * @return list of edges
+	 */
 	private List<Edge> readEdges(String path)
 	{
 		System.out.println("readEdges: " + path);
@@ -296,6 +322,9 @@ public class Instance {
 		return Collections.unmodifiableList(edges);
 	}
 
+	/**read load from given file
+	 * @param path of file
+	 */
 	private void readLoad(String path)
 	{
 		System.out.println("readLoad: " + path);
@@ -310,6 +339,10 @@ public class Instance {
 		}
 	}
 
+	/** read stops from given file
+	 * @param path of file
+	 * @return list of stops
+	 */
 	public List<Stop> readStops(String path)
 	{
 		System.out.println("readStops: " + path);
@@ -329,6 +362,10 @@ public class Instance {
 		return Collections.unmodifiableList(stops);
 	}
 
+	/** read od pairs from given file
+	 * @param path of file
+	 * @return list of od pairs
+	 */
 	public List<OD> readODpairs(String path)
 	{
 		System.out.println("readODpairs: " + path);
@@ -345,6 +382,11 @@ public class Instance {
 		return Collections.unmodifiableList(pairs);
 	}
 
+	/** read lines from given file
+	 * @param path of file
+	 * @param pathCosts path of file containing costs
+	 * @return list of lines
+	 */
 	public List<Line> readLines(String path, String pathCosts)
 	{
 		System.out.println("readLines: " + path);
@@ -405,6 +447,10 @@ public class Instance {
 
 	}
 
+	/** method to read files
+	 * @param path of file
+	 * @return list of strings
+	 */
 	private List<String> readFile(String path) 
 	{
 		try 
@@ -609,6 +655,11 @@ public class Instance {
 		return edges;
 	}
 
+	/** find edge by two stops
+	 * @param s1 stop 1
+	 * @param s2 stop 2
+	 * @return edge if found
+	 */
 	public Edge findEdge(Stop s1, Stop s2)
 	{
 		for (Edge e : edges)
@@ -624,6 +675,12 @@ public class Instance {
 
 	}
 
+	/** creates edges and add id
+	 * @param s1 stop
+	 * @param s2 stop
+	 * @param distance between stops
+	 * @return edge
+	 */
 	public Edge createEdge(Stop s1, Stop s2, int distance)
 	{
 		int size = edges.size();
@@ -646,6 +703,10 @@ public class Instance {
 	}
 
 
+	/** generates line pool with given stops
+	 * @param linesWithStops
+	 * @return list of lines
+	 */
 	public List<Line> generateLinePool(List<int[]> linesWithStops)
 	{
 		List<Line> lines = new ArrayList<Line>();
@@ -669,6 +730,11 @@ public class Instance {
 		return lines;
 	}
 	
+	/** generate line pool with given ids and list of stops
+	 * @param IDs given ids for the line
+	 * @param linesWithStops lines with stops
+	 * @return
+	 */
 	public List<Line> generateLinePool(List<Integer> IDs, List<int[]> linesWithStops)
 	{
 		List<Line> lines = new ArrayList<Line>();
@@ -693,6 +759,9 @@ public class Instance {
 		return lines;
 	}
 
+	/** exporter lines if self created
+	 * @param path
+	 */
 	public void printLineFile(String path)
 	{
 		try {

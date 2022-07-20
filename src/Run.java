@@ -14,6 +14,10 @@ public class Run {
 	public String name;
 	public String path;
 	
+	/** Class for running experiments 
+	 * @param ex input enum in order to choose experiment
+	 * @param args
+	 */
 	public Run(Run.Experiment ex, Object...args)
 	{
 		this.experiment = ex;
@@ -51,6 +55,9 @@ public class Run {
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	public void start()
 	{
 
@@ -60,16 +67,16 @@ public class Run {
 			runAthens();
 			break;
 		case GRID:
-			name = "grid_8z_f" + Settings.MAXFREQUENCY;
+//			name = "grid_8z_f" + Settings.MAXFREQUENCY;
+//			runGrid();
+			name = "grid_5h5v_test";
 			runGrid();
-//			name = "grid_5h5v_f" + Settings.MAXFREQUENCY;
-//			runGrid();
-//			name = "grid_5h4d_f" + Settings.MAXFREQUENCY;
-//			runGrid();
-//			name = "grid_5v4d_f" + Settings.MAXFREQUENCY;
-//			runGrid();
-//			name = "grid_5h5v4d_f" + Settings.MAXFREQUENCY ;
-//			runGrid();
+			name = "grid_5h4d_test";
+			runGrid();
+			name = "grid_5v4d_test";
+			runGrid();
+			name = "grid_5h5v4d_test";
+			runGrid();
 			break;
 		case GRID4:
 			name = "grid4_4h4v_f" + Settings.MAXFREQUENCY;
@@ -113,6 +120,9 @@ public class Run {
 		
 	}
 
+	/**
+	 * export statistics to summary file for a run
+	 */
 	public void writeAllSolutions()
 	{
 		try 
@@ -156,6 +166,9 @@ public class Run {
 
 
 
+	/**
+	 * Run Toy instance
+	 */
 	private void runToy() 
 	{
 		for (int c = 6; c <= 10; c++)
@@ -170,6 +183,9 @@ public class Run {
 		}		
 	}
 
+	/**
+	 * Run grid instance 
+	 */
 	private void runGrid() 
 	{
 		writeAllSolutions();
@@ -264,13 +280,13 @@ public class Run {
 //		incompatibles.add(new int[] {9, 12, 14});
 		
 	
-		for (int c = 5; c <= lines.size(); c++)
+		for (int c = 80; c <= lines.size() * 10 * 2; c = c + 5)
 		{
 			System.out.println("c = " + c);
 			Instance i = new Instance(name, path, lIds, lines, incompatibles);
 			i.generateLinePool(lines);
 			i.printLineFile(path);
-			Settings.setMaxLineCosts(c*10);
+			Settings.setMaxLineCosts(c);
 			Model m = new Model(i);
 			m.solveIteratively();
 			try {
@@ -284,6 +300,11 @@ public class Run {
 		
 	}
 	
+	/** Check for incompatibilities
+	 * @param lIds
+	 * @param incs
+	 * @return
+	 */
 	public List<int[]> incompatibilityCheck(List<int[]> lIds, List<int[]> incs)
 	{
 		List<int[]> newIncs = new ArrayList<int[]>();
@@ -302,6 +323,9 @@ public class Run {
 		return newIncs;
 	}
 	
+	/**
+	 * Run grid 4x4 
+	 */
 	private void runGrid4() 
 	{
 		writeAllSolutions();
@@ -359,6 +383,9 @@ public class Run {
 		
 	}
 
+	/**
+	 * Run Athens instance 
+	 */
 	private void runAthens() {
 		//c = maxlineCosts
 		
@@ -376,6 +403,9 @@ public class Run {
 	}
 
 	
+	/**
+	 * Tester
+	 */
 	private void runTest() 
 	{
 		path = "datasets\\grid4x4\\basis\\";
@@ -383,6 +413,9 @@ public class Run {
 		
 	}
 	
+	/** Run random instance
+	 * @param nr input for Random class
+	 */
 	public void runRandom(int nr)
 	{
 		System.out.println("Random experiment" + nr);
@@ -487,6 +520,10 @@ public class Run {
 	}
 
 
+	/** Run instance with random lines
+	 * @param nr
+	 * @param lines
+	 */
 	public void run(int nr, List<int[]> lines)
 	{
 		Generator g = new Generator("exp_" + nr, lines);

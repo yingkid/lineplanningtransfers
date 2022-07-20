@@ -11,6 +11,14 @@ public class Edge {
 	public int minFreq;
 	public int maxFreq;
 	
+	/** Edge in the ptn
+	 * @param id
+	 * @param leftStop
+	 * @param rightStop
+	 * @param length
+	 * @param minTraveltime
+	 * @param maxTraveltime
+	 */
 	public Edge(int id, Stop leftStop, Stop rightStop, double length, int minTraveltime, int maxTraveltime) {
 		this.id = id;
 		this.leftStop = leftStop;

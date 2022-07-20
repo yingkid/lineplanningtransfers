@@ -12,6 +12,11 @@ public class Vertex {
 	public List<Vertex> vertexTo = new ArrayList<Vertex>();
 	public List<Vertex> vertexFrom = new ArrayList<Vertex>();	
 	
+	/** vertex class for the passegner flow model
+	 * @param s stop
+	 * @param type see enum
+	 * @param line optional if vertex is of type Line
+	 */
 	public Vertex(Stop s, Vertex.Type type, Line...line)
 	{
 		this.stop = s;

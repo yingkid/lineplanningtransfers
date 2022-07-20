@@ -1,6 +1,10 @@
 import java.util.*;
 
 
+/**
+ * @author ying_
+ *
+ */
 public class Cycle implements Comparable<Cycle> {
 
 	public List<Activity> activities;
@@ -9,6 +13,10 @@ public class Cycle implements Comparable<Cycle> {
 	public int length;
 	public int delta;
 
+	/**
+	 * Cycle class with activities
+	 * @param activities
+	 */
 	public Cycle(List<Activity> activities)
 	{
 		this.activities = activities;

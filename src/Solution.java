@@ -21,6 +21,21 @@ public class Solution {
 	public final int nrFRPLATF;
 	public final int nrTRANSF;
 
+	/** generate solution
+	 * @param i instance
+	 * @param lines selected lines
+	 * @param frequencies selected frequencies
+	 * @param arcs selected arcs
+	 * @param transferArcs selected 
+	 * @param objectiveValue 
+	 * @param minTravelTime
+	 * @param minLineCosts
+	 * @param nrFRPLATF
+	 * @param nrTRANSF
+	 * @param iteration
+	 * @param itDuration
+	 * @param duration total duration
+	 */
 	public Solution(Instance i, HashMap<Line, Boolean> lines, HashMap<Line, Integer> frequencies, HashMap<Arc, HashMap<Stop, Integer>> arcs, HashMap<Arc, Boolean> transferArcs, 
 			double objectiveValue, double minTravelTime, double minLineCosts, int nrFRPLATF, int nrTRANSF, int iteration, long itDuration, long duration)
 	{
@@ -42,6 +57,9 @@ public class Solution {
 	}
 
 
+	/**
+	 * export progress of this iteration to a file
+	 */
 	public void writeSummary()
 	{
 		String path = "run/" + i.name + "/" + i.dateTime + "_solution.txt";
@@ -208,27 +226,27 @@ public class Solution {
 		return transfers;
 	}
 	
-	public void fixSolution()
-	{
-		HashMap<Arc, Boolean> fixedTransferArcs = new LinkedHashMap<Arc, Boolean>(this.transferArcs);
-
-		HashMap<Cycle, Integer> costs = new LinkedHashMap<Cycle, Integer>();
-		for (Cycle c : cycles)
-		{	
-			Arc aMin = null;
-			int min = Integer.MAX_VALUE;
-			for (Arc a : c.arcs)
-			{	
-				int total = arcs.get(a).values().stream().mapToInt(Integer::intValue).sum();
-				if (total < min)
-				{
-					min = total;
-					aMin = a;
-				}
-			}
-		}
-
-	}
+//	public void fixSolution()
+//	{
+//		HashMap<Arc, Boolean> fixedTransferArcs = new LinkedHashMap<Arc, Boolean>(this.transferArcs);
+//
+//		HashMap<Cycle, Integer> costs = new LinkedHashMap<Cycle, Integer>();
+//		for (Cycle c : cycles)
+//		{	
+//			Arc aMin = null;
+//			int min = Integer.MAX_VALUE;
+//			for (Arc a : c.arcs)
+//			{	
+//				int total = arcs.get(a).values().stream().mapToInt(Integer::intValue).sum();
+//				if (total < min)
+//				{
+//					min = total;
+//					aMin = a;
+//				}
+//			}
+//		}
+//
+//	}
 	
 //	private boolean checkTransferSolution(List<Arc> transfers)
 //	{

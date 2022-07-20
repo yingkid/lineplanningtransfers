@@ -12,6 +12,10 @@ public class Generator
 	public int[][] distances;
 	public String name;
 	
+	/** generator for experiments, not used in thesis
+	 * @param name
+	 * @param linesWithStops
+	 */
 	public Generator(String name, List<int[]> linesWithStops)
 	{
 		int nStops = 0;

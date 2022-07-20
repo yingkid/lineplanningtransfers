@@ -13,6 +13,9 @@ public class Line {
 	public int minFreq;
 	public int maxFreq;
 	
+	/**
+	 * finish line data
+	 */
 	public void finish()
 	{
 		List<Stop> stops = new ArrayList<>();
@@ -41,20 +44,9 @@ public class Line {
 
 	
 	
-	public Line(Line other, List<Edge> edges, List<Stop> stops)
-	{
-		this.id = other.id;
-		this.length = other.length;
-		this.capacity = other.capacity;
-		this.costs = other.costs;
-		this.minFreq = other.minFreq;
-		this.maxFreq = other.maxFreq;
-		
-		this.edges = edges;
-		this.stops = stops;
-	}
-	
-	
+	/**
+	 * @param id
+	 */
 	public Line(int id)
 	{
 		this.id = id;

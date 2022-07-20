@@ -8,12 +8,19 @@ public class ShortestPath {
 	private int[] dist;
 	private Event[] prev;
 	
+	/** creates shortest path class for ean 
+	 * @param network
+	 */
 	public ShortestPath(EAN network)
 	{
 		this.network = network;
 		this.events = network.events;
 	}
 
+	/** solve dijkstra from start event
+	 * @param startEvent event
+	 * @return
+	 */
 	public int[] Dijkstra(Event startEvent)
 	{
 		int size = events.size();
@@ -52,6 +59,11 @@ public class ShortestPath {
 		return dist;
 	}
 	
+	/** get cycle 
+	 * @param startEvent
+	 * @param endEvent
+	 * @return cycle object
+	 */
 	public Cycle getCycle(Event startEvent, Event endEvent)
 	{		
 		List<Activity> cycle = new ArrayList<Activity>();

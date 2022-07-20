@@ -8,6 +8,12 @@ public class Activity {
 	public Arc arc;
 	public final int value;
 
+	/** activity in the EAN
+	 * @param from event
+	 * @param to event
+	 * @param type see enum
+	 * @param arcs arc corresponding to the activity
+	 */
 	public Activity(Event from, Event to, Type type, Arc... arcs)
 	{
 		this.type = type;

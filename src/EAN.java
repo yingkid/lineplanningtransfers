@@ -12,6 +12,10 @@ public class EAN {
 	public boolean[][] adjacencyMatrix;
 	public Activity[][] activityMatrix;
 
+	/** creates EAN from solution and instance
+	 * @param sol solution
+	 * @param i instance
+	 */
 	public EAN(Solution sol, Instance i)
 	{
 		this.events = new ArrayList<Event>();
@@ -27,6 +31,10 @@ public class EAN {
 
 	}
 
+	/** generates transfer arcs in the EAN
+	 * @param sol solution
+	 * @return
+	 */
 	private List<Transfer> generateTransfers(Solution sol)
 	{
 		System.out.println("EAN: generate transfers");
@@ -39,6 +47,9 @@ public class EAN {
 		return transfers;
 	}
 
+	/** generates events and activities for every line
+	 * @param sol solution
+	 */
 	private void generateEAforLines(Solution sol)
 	{
 		System.out.println("EAN: generate events and activities for lines");
@@ -55,6 +66,9 @@ public class EAN {
 		}
 	}
 
+	/** generates transfer activities
+	 * @param sol solution
+	 */
 	private void generateTransferActivities(Solution sol)
 	{
 		System.out.println("EAN: generate transfer activities");
@@ -134,6 +148,11 @@ public class EAN {
 
 	}
 
+	/** find whether there is a transfer between two events
+	 * @param arr
+	 * @param dep
+	 * @return transfer if found
+	 */
 	private Transfer checkTransfer(Event arr, Event dep)
 	{
 		Stop s = arr.stop;
@@ -149,6 +168,10 @@ public class EAN {
 
 	}
 
+	/** creates events and activities for given line in the given direction
+	 * @param l line
+	 * @param direction
+	 */
 	private void createEAforLine(Line l, Event.Direction direction)
 	{
 		List<Stop> stops = new ArrayList<Stop>();
@@ -202,6 +225,12 @@ public class EAN {
 		}
 	}
 
+	/** find arc from given list by departure and arrival event
+	 * @param dep departure event
+	 * @param arr arrival event
+	 * @param arcs list of arcs
+	 * @return the found arc
+	 */
 	private Arc getArcFromList(Event dep, Event arr, List<Arc> arcs)
 	{
 		Stop departureStop = dep.stop;

@@ -5,6 +5,11 @@ public class OD {
 	public final Stop destination;
 	public int count;
 	
+	/** origin-destination for the passenger flow model
+	 * @param origin
+	 * @param destination
+	 * @param count
+	 */
 	public OD(Stop origin, Stop destination, int count) {
 		this.origin = origin;
 		this.destination = destination;

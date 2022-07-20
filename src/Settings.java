@@ -1,6 +1,10 @@
 import java.lang.reflect.Field;
 import java.util.*;
 
+/** Settings class in order to do different experiments
+ * @author ying_
+ *
+ */
 public class Settings {
 	
 	public static final Random random = new Random(1);

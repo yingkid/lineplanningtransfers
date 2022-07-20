@@ -14,6 +14,12 @@ public class Event {
 	public final List<Activity> outActivity;
 	public final List<Activity> inActivity;
 	
+	/** event in the EAN
+	 * @param l line
+	 * @param s stop
+	 * @param type see enum
+	 * @param direction see enum
+	 */
 	public Event(Line l, Stop s, Type type, Direction direction)
 	{
 		this.stop = s;

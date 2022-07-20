@@ -15,6 +15,9 @@ public class Model {
 	private IloLinearNumExpr minLineCosts;
 	private List<Cycle> excludedCycles = new ArrayList<Cycle>();
 
+	/** class for modeling using cplex
+	 * @param i instance
+	 */
 	public Model(Instance i) 
 	{
 		this.i = i;
@@ -31,6 +34,9 @@ public class Model {
 		i.printToFile();
 	}
 
+	/** initialize decision variables
+	 * @throws IloException
+	 */
 	private void initVariables() throws IloException
 	{
 		//big-m for yvars and transfer big-M round up to 1000
@@ -93,6 +99,9 @@ public class Model {
 
 	}
 
+	/** initialize the constraints
+	 * @throws IloException
+	 */
 	private void initConstraints() throws IloException
 	{
 		initXconstraints();
@@ -100,6 +109,9 @@ public class Model {
 		initZconstraints();
 	}
 
+	/** initialize the x-constraints (line-frequency)
+	 * @throws IloException
+	 */
 	private void initXconstraints() throws IloException 
 	{
 		//x-variables
@@ -147,6 +159,9 @@ public class Model {
 
 	}
 
+	/** initialize the flow constraints y
+	 * @throws IloException
+	 */
 	private void initYconstraints() throws IloException
 	{
 		//y-variables
@@ -249,6 +264,9 @@ public class Model {
 		} 
 	}
 
+	/** initialize short transfer constraints
+	 * @throws IloException
+	 */
 	private void initZconstraints() throws IloException 
 	{
 		this.shortTransferConstraints = new HashMap<Arc, IloConstraint>();
@@ -274,6 +292,10 @@ public class Model {
 		}
 	}
 
+	/** initialize constraints to exclude cycles
+	 * @param cycles
+	 * @throws IloException
+	 */
 	private void initZexcludedArcs(List<Cycle> cycles) throws IloException
 	{
 		if (cycles != null)
@@ -294,6 +316,9 @@ public class Model {
 	}
 
 
+	/** initialize the objective function
+	 * @throws IloException
+	 */
 	private void initObjective() throws IloException
 	{
 		minTravelTime = cplex.linearNumExpr();
@@ -432,6 +457,13 @@ public class Model {
 		return 0;
 	}
 
+	/** generates solution and inserts some statistics to this solution
+	 * @param iteration
+	 * @param itDuration
+	 * @param duration
+	 * @return solution object
+	 * @throws IloException
+	 */
 	public Solution generateSolution(int iteration, long itDuration, long duration) throws IloException
 	{
 		//x-variables
@@ -505,6 +537,12 @@ public class Model {
 		return new Solution(i, lines, frequencies, arcs, transferArcs, cplex.getObjValue(), minTT, minLC, nrFRPLATF, nrTRANSF, iteration, itDuration, duration);
 	}
 
+	/** solve the problem
+	 * @param iteration
+	 * @param initTime
+	 * @return solution object
+	 * @throws IloException
+	 */
 	public Solution solve(int iteration, long initTime) throws IloException
 	{
 		System.out.println("solving...");
@@ -551,6 +589,9 @@ public class Model {
 		return sol;
 	}
 
+	/** solve the problem with iteratively finding cycles
+	 * @return
+	 */
 	public List<Solution> solveIteratively()
 	{
 		System.out.println("Solve iteratively");
@@ -609,87 +650,91 @@ public class Model {
 
 
 
-	private boolean isFeasible(Solution sol)
-	{
-		List<IloConstraint> constraints = new ArrayList<IloConstraint>();
-		boolean feasible = false; 
-		try {
-			for (Line l : i.getLines())
-			{
-				if (sol.frequencies.containsKey(l))
-				{
-					int f = sol.frequencies.get(l);
-					for (Entry<Integer, IloIntVar> entry : xvars.get(l).entrySet())
-					{
-						int val = f == entry.getKey() ? 1 : 0;
-						IloConstraint con = cplex.addEq(entry.getValue(), val);
-						constraints.add(con);
-					}
-				}
-				else
-				{
-					for (Entry<Integer, IloIntVar> entry : xvars.get(l).entrySet())
-					{
-						IloConstraint con = cplex.addEq(entry.getValue(), 0);
-						constraints.add(con);
-					}
-				}
+//	private boolean isFeasible(Solution sol)
+//	{
+//		List<IloConstraint> constraints = new ArrayList<IloConstraint>();
+//		boolean feasible = false; 
+//		try {
+//			for (Line l : i.getLines())
+//			{
+//				if (sol.frequencies.containsKey(l))
+//				{
+//					int f = sol.frequencies.get(l);
+//					for (Entry<Integer, IloIntVar> entry : xvars.get(l).entrySet())
+//					{
+//						int val = f == entry.getKey() ? 1 : 0;
+//						IloConstraint con = cplex.addEq(entry.getValue(), val);
+//						constraints.add(con);
+//					}
+//				}
+//				else
+//				{
+//					for (Entry<Integer, IloIntVar> entry : xvars.get(l).entrySet())
+//					{
+//						IloConstraint con = cplex.addEq(entry.getValue(), 0);
+//						constraints.add(con);
+//					}
+//				}
+//
+//
+//
+//			}
+//
+//			for (Arc a : i.getArcs())
+//			{
+//				for (Map.Entry<Stop, IloNumVar> entry : yvars.get(a).entrySet())
+//				{
+//					int val = sol.arcs.get(a).get(entry.getKey());
+//					IloConstraint con2 = cplex.addLe(entry.getValue(), val + 1);
+//					constraints.add(con2);
+//
+//				}
+//			}
+//
+//			//			if (Settings.SHORTTRANSFERS)
+//			//			{
+//			//				for (Arc a : i.getArcs())
+//			//				{
+//			//					if (a.type != Arc.Type.TRANSF) continue;
+//			//					int val = sol.transferArcs.contains(a) ? 1 : 0;
+//			//					IloConstraint con = cplex.addEq(zvars.get(a), val);
+//			//					constraints.add(con);
+//			//				}
+//			//			}
+//			if (feasible = cplex.solve())
+//			{
+//				System.out.println("This solution is feasible " + sol.iteration);
+//			}
+//			else
+//			{
+//				System.out.println("This solution is infeasible " + sol.iteration);
+//			}
+//
+//			for (IloConstraint con : constraints)
+//			{
+//				cplex.remove(con);
+//			}
+//			try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			return feasible;
+//		} 
+//		catch (IloException e) 
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//		return false;
+//	}
 
-
-
-			}
-
-			for (Arc a : i.getArcs())
-			{
-				for (Map.Entry<Stop, IloNumVar> entry : yvars.get(a).entrySet())
-				{
-					int val = sol.arcs.get(a).get(entry.getKey());
-					IloConstraint con2 = cplex.addLe(entry.getValue(), val + 1);
-					constraints.add(con2);
-
-				}
-			}
-
-			//			if (Settings.SHORTTRANSFERS)
-			//			{
-			//				for (Arc a : i.getArcs())
-			//				{
-			//					if (a.type != Arc.Type.TRANSF) continue;
-			//					int val = sol.transferArcs.contains(a) ? 1 : 0;
-			//					IloConstraint con = cplex.addEq(zvars.get(a), val);
-			//					constraints.add(con);
-			//				}
-			//			}
-			if (feasible = cplex.solve())
-			{
-				System.out.println("This solution is feasible " + sol.iteration);
-			}
-			else
-			{
-				System.out.println("This solution is infeasible " + sol.iteration);
-			}
-
-			for (IloConstraint con : constraints)
-			{
-				cplex.remove(con);
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return feasible;
-		} 
-		catch (IloException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return false;
-	}
-
+	/** export cplex model to .lp files
+	 * @param iteration
+	 * @throws IloException
+	 */
 	private void exportModel(int iteration) throws IloException
 	{
 		String dirPath = "run/" + i.name + "/" + i.dateTime + "/";
@@ -702,80 +747,11 @@ public class Model {
 
 	}
 
-	private Cycle cycleCheck(Solution sol) 
-	{
-		EAN network = new EAN(sol, i);
-		List<Cycle> cycle_family = new ArrayList<Cycle>();
-
-		for (Stop transferStation : network.transferStations)
-		{
-			for (Event e : network.events)
-			{
-				if (e.stop == transferStation && e.type == Event.Type.DEP)
-				{
-					ShortestPath sp = new ShortestPath(network);
-					int[] dist = sp.Dijkstra(e);
-					//int min_length = Integer.MAX_VALUE;
-					int max_delta = Integer.MIN_VALUE;
-					Cycle cycle_candidate = null;
-
-					for (Event e2 : network.events)
-					{
-						if (e2.type == Event.Type.ARR)
-						{
-							if (e2.hasNextEvent(e))
-							{
-								int idx = network.events.indexOf(e2);
-								if (dist[idx] >= 0 && dist[idx] < Integer.MAX_VALUE) //consider only feasible paths
-								{
-									int length = dist[idx] + e2.getOutActivity(e).value;
-									int cp = Settings.CYCLEPERIOD;
-									int remainder = length % cp;
-									int delta = cp / 2 - Math.abs(cp / 2 - remainder);
-
-									//System.out.println(length + " " + delta);
-									if (delta > max_delta)
-									{
-
-										if (delta > Settings.DELTADEVIATION)
-										{
-											Cycle cycle = sp.getCycle(e, e2);
-											cycle.setDelta(delta);
-											cycle.setLength(length);
-											if (cycle.transfers > 2)
-											{
-												max_delta = delta;
-												cycle_candidate = cycle;
-											}
-
-
-										}
-
-									}
-								}
-							}
-						}
-					}
-					if (cycle_candidate != null)
-					{
-						cycle_family.add(cycle_candidate);
-					}
-				}
-
-			}
-		}
-
-		if (cycle_family.isEmpty())
-		{
-			return null;
-		}
-		else
-		{		
-			Collections.sort(cycle_family);
-
-			return cycle_family.get(cycle_family.size() - 1);
-		}
-	}
+	
+	/** finds cycles in the solution if possible
+	 * @param sol
+	 * @return list of invalid cycles
+	 */
 	private List<Cycle> cyclesCheck(Solution sol) 
 	{
 		EAN network = new EAN(sol, i);
@@ -834,6 +810,11 @@ public class Model {
 		return cycles;
 	}
 
+	/** check if cycle already exists
+	 * @param cycles
+	 * @param o
+	 * @return
+	 */
 	private boolean alreadyExists(List<Cycle> cycles, Cycle o)
 	{
 		for (Cycle c : cycles)

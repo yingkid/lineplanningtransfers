@@ -14,6 +14,13 @@ public class Stop {
 	public final List<Vertex> vertices;
 	public int demandFromThisOrigin;
 	
+	/** stop in the ptn
+	 * @param id
+	 * @param shortName
+	 * @param longName
+	 * @param x
+	 * @param y
+	 */
 	public Stop(int id, String shortName, String longName, double x, double y) {
 		super();
 		this.id = id;
@@ -28,11 +35,17 @@ public class Stop {
 		this.lines = new LinkedHashMap<Line, Vertex>();
 	}
 	
+	/** add platform vertex for long transfers
+	 * @param platformVertex
+	 */
 	public void addPlatformVertex(Vertex platformVertex)
 	{
 		this.platform = platformVertex;
 	}
 	
+	/** add relatex vertex to this stop
+	 * @param v
+	 */
 	public void addVertex(Vertex v) 
 	{
 		this.vertices.add(v);
